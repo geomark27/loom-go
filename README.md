@@ -2,9 +2,16 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.23%2B-00ADD8?style=flat&logo=go)](https://golang.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/geomark27/loom-go)
+[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/geomark27/loom-go/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/geomark27/loom-go)](https://goreportcard.com/report/github.com/geomark27/loom-go)
 
 **Loom** es una herramienta CLI que automatiza la creación de proyectos backend en Go con arquitectura profesional, siguiendo las mejores prácticas de la comunidad.
+
+## 📦 Instalación con un solo comando
+
+```bash
+go install github.com/geomark27/loom-go/cmd/loom@latest
+```
 
 ## 🎯 ¿Qué hace Loom?
 
@@ -24,6 +31,18 @@ Genera en **30 segundos** un proyecto Go completo con:
 
 ### Instalación
 
+#### Opción 1: Instalar desde GitHub (Recomendado)
+
+```bash
+# Instalar con un solo comando
+go install github.com/geomark27/loom-go/cmd/loom@latest
+
+# Verificar instalación
+loom --version
+```
+
+#### Opción 2: Clonar y compilar (Para desarrollo)
+
 ```bash
 # Clonar el repositorio
 git clone https://github.com/geomark27/loom-go.git
@@ -35,6 +54,8 @@ go install ./cmd/loom
 # Verificar instalación
 loom --version
 ```
+
+> 📖 **Más opciones de instalación:** Ver [INSTALL_FROM_GITHUB.md](INSTALL_FROM_GITHUB.md)
 
 ### Crear tu Primer Proyecto
 
