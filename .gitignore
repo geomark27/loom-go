@@ -1,0 +1,311 @@
+# Binarios compilados y ejecutables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/loom
+/loom.exe
+
+# Archivos de test
+*.test
+*.out
+
+# Archivos de cobertura
+*.prof
+*.pprof
+coverage.txt
+coverage.html
+coverage.out
+*.coverprofile
+
+# Directorios de dependencias
+vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Archivos de output de compilación
+bin/
+dist/
+build/
+out/
+
+# IDEs y Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# JetBrains IDEs (GoLand, IntelliJ)
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.history/
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Emacs
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Variables de entorno y secretos
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+*.env
+config.local.*
+secrets.json
+.secrets/
+*.key
+*.pem
+*.cert
+*.crt
+
+# Archivos de log
+*.log
+logs/
+log/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sistema Operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+ehthumbs_vista.db
+Thumbs.db
+Thumbs.db:encryptable
+desktop.ini
+$RECYCLE.BIN/
+
+# Archivos temporales
+tmp/
+temp/
+.tmp/
+.temp/
+*.tmp
+*.bak
+*.backup
+*.old
+*.orig
+*~
+
+# Cache
+.cache/
+*.cache
+
+# Archivos de debug
+__debug_bin
+debug
+debug.test
+
+# Air (hot reload para Go)
+.air.toml
+tmp/
+
+# Delve debugger
+__debug_bin*
+
+# Database locales
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+database.sql
+*.db-shm
+*.db-wal
+
+# Profiling y benchmarks
+*.bench
+*.benchstat
+*.cpu
+*.mem
+*.trace
+
+# Archivos de certificados y claves privadas
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+*.cer
+*.der
+
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+terraform.tfstate.backup
+*.tfvars
+*.tfstate.lock.info
+.terraformrc
+terraform.rc
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Kubernetes
+*.kubeconfig
+
+# CI/CD
+.gitlab-ci-local/
+
+# Node modules (si hay herramientas de frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Directorios de documentación generada
+site/
+docs/_build/
+
+# Archivos de distribución
+*.tar.gz
+*.zip
+*.7z
+*.rar
+
+# Proyectos de ejemplo generados (para testing local)
+mi-api-ejemplo/
+mi-api-avanzada/
+new-project/
+demo-app/
+test-project/
+example-*/
+demo-*/
+
+# Archivos de backup de editores
+*~
+\#*\#
+*.bak
+*.orig
+
+# Archivos de crash
+crash.log
+crash.txt
+hs_err_pid*
+
+# MacOS específico
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows específico
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux específico
+.directory
+.fuse_hidden*
+.nfs*
+
+# Archivos de módulos Go generados
+go.sum.backup
+
+# Protobuf generados
+*.pb.go
+*_pb2.py
+
+# Wire generados (dependency injection)
+wire_gen.go
+
+# Mock generados
+*_mock.go
+mock_*.go
+
+# Swagger/OpenAPI generados
+docs/swagger/
+docs/openapi/
+
+# Archivos de migración de base de datos (temporales)
+migrations/*.sql.bak
+
+# Archivos de sesión
+*.session
+
+# Archivos locales de configuración del proyecto
+.project
+.classpath
+.settings/
+
+# Archivos de análisis estático
+.scannerwork/
+sonar-project.properties
+
+# Archivos de benchmarking
+benchmarks/results/
+
+# Archivos de coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Archivos de instalación local
+*.local
+
+# Archivos de prueba y desarrollo local
+scratch/
+playground/
+sandbox/
+
+# Archivos de herramientas de desarrollo
+.editorconfig.local
+
+# Archivos de métricas y telemetría
+.metrics/
+telemetry/
+
+# Archivos de auditoría
+audit.log
+audit/
