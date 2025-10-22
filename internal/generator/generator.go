@@ -13,6 +13,7 @@ type ProjectConfig struct {
 	Path        string // Ruta donde se creará el proyecto
 	ModuleName  string // Nombre del módulo Go
 	Description string // Descripción del proyecto
+	UseHelpers  bool   // Si true, incluye los helpers de Loom en el proyecto
 }
 
 // Generator es responsable de generar proyectos

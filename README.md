@@ -2,7 +2,7 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.23%2B-00ADD8?style=flat&logo=go)](https://golang.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/geomark27/loom-go/releases)
+[![Version](https://img.shields.io/badge/version-0.2.0-green.svg)](https://github.com/geomark27/loom-go/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/geomark27/loom-go)](https://goreportcard.com/report/github.com/geomark27/loom-go)
 
 **Loom** es una herramienta CLI que automatiza la creación de proyectos backend en Go con arquitectura profesional, siguiendo las mejores prácticas de la comunidad.
@@ -22,10 +22,36 @@ Genera en **30 segundos** un proyecto Go completo con:
 - ✅ **Servidor HTTP** configurado (Gorilla Mux)
 - ✅ **Middlewares** (CORS, etc.)
 - ✅ **Health checks** implementados
+- ✅ **Helpers opcionales** 🆕 para desarrollo rápido o código 100% independiente
 - ✅ **Configuración de entorno** (.env.example)
 - ✅ **Makefile** con comandos útiles
 - ✅ **Documentación** (README.md + API.md)
 - ✅ **.gitignore** completo
+
+## 🆕 Novedades v0.2.0
+
+### Modelo Híbrido: Generador + Helpers Opcionales
+
+Ahora puedes elegir:
+
+**Opción 1: Con Helpers (Por defecto)** 🚀
+```bash
+loom new mi-api
+```
+- Incluye `pkg/helpers` para desarrollo rápido
+- Respuestas HTTP estandarizadas
+- Validación automática
+- Logging estructurado
+- Actualizable con `go get -u`
+
+**Opción 2: Standalone (100% Independiente)** 🔧
+```bash
+loom new mi-api --standalone
+```
+- Código 100% propio, sin dependencias de Loom
+- Control total
+- Cero vendor lock-in
+- Perfecto para puristas de Go
 
 ## 🚀 Inicio Rápido
 
@@ -60,8 +86,11 @@ loom --version
 ### Crear tu Primer Proyecto
 
 ```bash
-# Crear proyecto
+# Crear proyecto (con helpers por defecto)
 loom new mi-api
+
+# O crear proyecto standalone (sin helpers)
+loom new mi-api --standalone
 
 # Entrar al proyecto
 cd mi-api
@@ -74,6 +103,40 @@ go run cmd/mi-api/main.go
 ```
 
 **¡Servidor corriendo en http://localhost:8080!** 🎉
+
+### 📦 Helpers Disponibles (v0.2.0)
+
+Si usas helpers, tu proyecto incluye:
+
+```go
+import "github.com/geomark27/loom-go/pkg/helpers"
+
+// HTTP Responses estandarizadas
+helpers.RespondSuccess(w, data, "Success")
+helpers.RespondError(w, err, http.StatusBadRequest)
+helpers.RespondCreated(w, user, "User created")
+
+// Validación automática
+errors := helpers.ValidateStruct(myDTO)
+if len(errors) > 0 {
+    // Manejar errores de validación
+}
+
+// Logging estructurado
+logger := helpers.NewLogger()
+logger.Info("User created", "user_id", user.ID)
+logger.Error("Database error", "error", err)
+
+// Errores predefinidos
+helpers.ErrNotFound
+helpers.ErrBadRequest
+helpers.ErrUnauthorized
+```
+
+Para actualizar helpers:
+```bash
+go get -u github.com/geomark27/loom-go/pkg/helpers
+```
 
 ## 📖 Documentación Completa
 
@@ -174,16 +237,32 @@ make clean         # Limpiar archivos generados
 
 ## 🔮 Roadmap
 
-Funcionalidades planeadas:
+### ✅ v0.1.0 - Generador Base (Completado)
+- CLI funcional
+- Generación de proyectos con arquitectura modular
+- Templates embebidos
+- Instalación global
 
-- [ ] `loom generate module <nombre>` - Generar módulos completos
-- [ ] `loom generate handler <nombre>` - Generar handler individual
-- [ ] `loom add router <gin|chi|echo>` - Cambiar router HTTP
-- [ ] `loom add orm <gorm|sqlc>` - Agregar ORM
-- [ ] `loom add database <postgres|mysql|mongo>` - Configurar BD
-- [ ] `loom add auth <jwt|oauth>` - Agregar autenticación
-- [ ] `loom add docker` - Agregar Dockerfile y docker-compose
-- [ ] `loom add ci <github|gitlab>` - Configurar CI/CD
+### ✅ v0.2.0 - Helpers Opcionales (Actual)
+- `pkg/helpers` con utilidades reutilizables
+- Flag `--standalone` para proyectos independientes
+- Sistema de templates con `embed`
+- Helpers actualizables
+
+### 🎯 v0.3.0 - Comando Generate (Próximo)
+- `loom generate module Product` - Generar módulo completo
+- `loom generate handler Order` - Generar handler individual
+- `loom generate service Payment` - Generar service
+- `loom generate repository Customer` - Generar repository
+- Detección automática de proyectos Loom
+
+### 🔮 Futuro
+- `loom add router <gin|chi|echo>` - Cambiar router HTTP
+- `loom add orm <gorm|sqlc>` - Agregar ORM
+- `loom add database <postgres|mysql|mongo>` - Configurar BD
+- `loom add auth <jwt|oauth>` - Agregar autenticación
+- `loom add docker` - Agregar Dockerfile y docker-compose
+- `loom upgrade` - Sistema de actualización de proyectos
 
 ## 🤝 Contribuir
 

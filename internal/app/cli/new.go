@@ -24,6 +24,11 @@ El proyecto generado incluirá:
 	RunE: runNewCommand,
 }
 
+var (
+	standalone bool
+	moduleName string
+)
+
 func runNewCommand(cmd *cobra.Command, args []string) error {
 	projectName := args[0]
 
@@ -36,12 +41,19 @@ func runNewCommand(cmd *cobra.Command, args []string) error {
 	baseDir := "."
 	projectPath := filepath.Join(baseDir, projectName)
 
+	// Determinar el nombre del módulo
+	module := moduleName
+	if module == "" {
+		module = fmt.Sprintf("github.com/tu-usuario/%s", projectName)
+	}
+
 	// Crear la configuración del proyecto
 	config := &generator.ProjectConfig{
 		Name:        projectName,
 		Path:        projectPath,
-		ModuleName:  fmt.Sprintf("github.com/tu-usuario/%s", projectName), // TODO: hacer configurable
+		ModuleName:  module,
 		Description: fmt.Sprintf("Proyecto %s generado con Loom", projectName),
+		UseHelpers:  !standalone, // UseHelpers es true por defecto, false si --standalone está activo
 	}
 
 	// Generar el proyecto
@@ -52,6 +64,13 @@ func runNewCommand(cmd *cobra.Command, args []string) error {
 
 	// Mensaje de éxito
 	fmt.Printf("✅ Proyecto '%s' creado exitosamente en %s\n", projectName, projectPath)
+
+	if config.UseHelpers {
+		fmt.Printf("📦 Incluye helpers de Loom para desarrollo rápido\n")
+	} else {
+		fmt.Printf("🔧 Proyecto standalone (sin dependencias de Loom)\n")
+	}
+
 	fmt.Printf("\nPróximos pasos:\n")
 	fmt.Printf("  cd %s\n", projectName)
 	fmt.Printf("  go mod tidy\n")
@@ -81,5 +100,6 @@ func init() {
 	rootCmd.AddCommand(newCmd)
 
 	// Flags específicos del comando new
-	newCmd.Flags().StringP("module", "m", "", "Nombre del módulo Go (por defecto: github.com/tu-usuario/nombre-proyecto)")
+	newCmd.Flags().StringVarP(&moduleName, "module", "m", "", "Nombre del módulo Go (por defecto: github.com/tu-usuario/nombre-proyecto)")
+	newCmd.Flags().BoolVar(&standalone, "standalone", false, "Generar proyecto sin helpers de Loom (código 100% independiente)")
 }

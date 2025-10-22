@@ -1,0 +1,30 @@
+package models
+
+import "time"
+
+// User representa un usuario en el sistema
+type User struct {
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Age       int       `json:"age"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// NewUser crea una nueva instancia de User con timestamps
+func NewUser(name, email string, age int) *User {
+	now := time.Now()
+	return &User{
+		Name:      name,
+		Email:     email,
+		Age:       age,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+}
+
+// UpdateTimestamp actualiza el timestamp de UpdatedAt
+func (u *User) UpdateTimestamp() {
+	u.UpdatedAt = time.Now()
+}

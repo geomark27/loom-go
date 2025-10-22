@@ -1,0 +1,154 @@
+package repositories
+
+import (
+	"sync"
+	"time"
+
+	"{{.ModuleName}}/internal/app/models"
+)
+
+// UserRepository maneja la persistencia de usuarios
+// En este ejemplo usamos una implementación en memoria
+// En producción, esto sería reemplazado por una base de datos real
+type UserRepository struct {
+	users  map[int]*models.User
+	nextID int
+	mutex  sync.RWMutex
+}
+
+// NewUserRepository crea una nueva instancia de UserRepository
+func NewUserRepository() *UserRepository {
+	repo := &UserRepository{
+		users:  make(map[int]*models.User),
+		nextID: 1,
+	}
+	
+	// Agregar algunos usuarios de ejemplo
+	repo.seedData()
+	
+	return repo
+}
+
+// seedData crea algunos usuarios de ejemplo
+func (r *UserRepository) seedData() {
+	users := []*models.User{
+		{
+			ID:        1,
+			Name:      "Juan Pérez",
+			Email:     "juan@example.com",
+			Age:       25,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        2,
+			Name:      "María García",
+			Email:     "maria@example.com",
+			Age:       30,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        3,
+			Name:      "Carlos López",
+			Email:     "carlos@example.com",
+			Age:       28,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+	
+	for _, user := range users {
+		r.users[user.ID] = user
+		if user.ID >= r.nextID {
+			r.nextID = user.ID + 1
+		}
+	}
+}
+
+// GetAll obtiene todos los usuarios
+func (r *UserRepository) GetAll() ([]models.User, error) {
+	r.mutex.RLock()
+	defer r.mutex.RUnlock()
+	
+	users := make([]models.User, 0, len(r.users))
+	for _, user := range r.users {
+		users = append(users, *user)
+	}
+	
+	return users, nil
+}
+
+// GetByID obtiene un usuario por su ID
+func (r *UserRepository) GetByID(id int) *models.User {
+	r.mutex.RLock()
+	defer r.mutex.RUnlock()
+	
+	if user, exists := r.users[id]; exists {
+		// Retornar una copia para evitar modificaciones accidentales
+		userCopy := *user
+		return &userCopy
+	}
+	
+	return nil
+}
+
+// Create crea un nuevo usuario
+func (r *UserRepository) Create(user *models.User) *models.User {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	
+	// Asignar ID y timestamps
+	user.ID = r.nextID
+	r.nextID++
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
+	
+	// Guardar el usuario
+	r.users[user.ID] = user
+	
+	// Retornar una copia
+	userCopy := *user
+	return &userCopy
+}
+
+// Update actualiza un usuario existente
+func (r *UserRepository) Update(user *models.User) *models.User {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	
+	if _, exists := r.users[user.ID]; exists {
+		user.UpdatedAt = time.Now()
+		r.users[user.ID] = user
+		
+		// Retornar una copia
+		userCopy := *user
+		return &userCopy
+	}
+	
+	return nil
+}
+
+// Delete elimina un usuario por su ID
+func (r *UserRepository) Delete(id int) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	
+	delete(r.users, id)
+}
+
+// GetByEmail obtiene un usuario por su email
+func (r *UserRepository) GetByEmail(email string) *models.User {
+	r.mutex.RLock()
+	defer r.mutex.RUnlock()
+	
+	for _, user := range r.users {
+		if user.Email == email {
+			// Retornar una copia
+			userCopy := *user
+			return &userCopy
+		}
+	}
+	
+	return nil
+}

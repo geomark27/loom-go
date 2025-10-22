@@ -1,0 +1,72 @@
+# {{.Name}} - Makefile generado por Loom
+
+.PHONY: build run test clean fmt vet deps help
+
+# Variables
+APP_NAME={{.Name}}
+BUILD_DIR=build
+CMD_DIR=cmd/$(APP_NAME)
+
+# Comandos principales
+help: ## Muestra esta ayuda
+	@echo "Comandos disponibles:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
+
+build: ## Compila la aplicación
+	@echo "🔨 Compilando $(APP_NAME)..."
+	@mkdir -p $(BUILD_DIR)
+	@go build -o $(BUILD_DIR)/$(APP_NAME) $(CMD_DIR)/main.go
+	@echo "✅ Compilación exitosa: $(BUILD_DIR)/$(APP_NAME)"
+
+run: ## Ejecuta la aplicación
+	@echo "🚀 Ejecutando $(APP_NAME)..."
+	@go run $(CMD_DIR)/main.go
+
+test: ## Ejecuta los tests
+	@echo "🧪 Ejecutando tests..."
+	@go test -v ./...
+
+test-coverage: ## Ejecuta tests con cobertura
+	@echo "🧪 Ejecutando tests con cobertura..."
+	@go test -v -coverprofile=coverage.out ./...
+	@go tool cover -html=coverage.out -o coverage.html
+	@echo "📊 Reporte de cobertura generado: coverage.html"
+
+fmt: ## Formatea el código
+	@echo "🎨 Formateando código..."
+	@go fmt ./...
+
+vet: ## Ejecuta go vet
+	@echo "🔍 Analizando código..."
+	@go vet ./...
+
+lint: ## Ejecuta golangci-lint (requiere instalación)
+	@echo "🔍 Ejecutando linter..."
+	@golangci-lint run
+
+deps: ## Descarga las dependencias
+	@echo "📦 Descargando dependencias..."
+	@go mod download
+	@go mod tidy
+
+clean: ## Limpia archivos generados
+	@echo "🧹 Limpiando archivos generados..."
+	@rm -rf $(BUILD_DIR)
+	@rm -f coverage.out coverage.html
+	@go clean
+
+dev: ## Modo desarrollo (requiere air para hot reload)
+	@echo "🔥 Iniciando en modo desarrollo..."
+	@air
+
+install-tools: ## Instala herramientas de desarrollo
+	@echo "🛠️  Instalando herramientas de desarrollo..."
+	@go install github.com/cosmtrek/air@latest
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+# Comandos de base de datos (para futuras implementaciones)
+db-migrate: ## Ejecuta migraciones (cuando se implemente)
+	@echo "🗃️  Migraciones de base de datos no implementadas aún"
+
+db-seed: ## Ejecuta seeders (cuando se implemente)
+	@echo "🌱 Seeders de base de datos no implementados aún"

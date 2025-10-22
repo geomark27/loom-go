@@ -1,0 +1,75 @@
+package config
+
+import (
+	"os"
+	"strings"
+)
+
+// Config contiene toda la configuración de la aplicación
+type Config struct {
+	Port        string
+	Environment string
+	LogLevel    string
+	
+	// CORS
+	CorsAllowedOrigins []string
+	
+	// Base de datos (para futuras implementaciones)
+	DatabaseURL string
+	
+	// JWT (para futuras implementaciones)
+	JWTSecret string
+}
+
+// Load carga la configuración desde variables de entorno
+func Load() *Config {
+	return &Config{
+		Port:        getEnv("PORT", "8080"),
+		Environment: getEnv("ENVIRONMENT", "development"),
+		LogLevel:    getEnv("LOG_LEVEL", "info"),
+		
+		// CORS
+		CorsAllowedOrigins: parseCorsOrigins(getEnv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080")),
+		
+		// Base de datos
+		DatabaseURL: getEnv("DATABASE_URL", ""),
+		
+		// JWT
+		JWTSecret: getEnv("JWT_SECRET", "your-default-secret-change-in-production"),
+	}
+}
+
+// getEnv obtiene una variable de entorno o retorna un valor por defecto
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+// parseCorsOrigins parsea la lista de orígenes CORS desde una cadena separada por comas
+func parseCorsOrigins(origins string) []string {
+	if origins == "" {
+		return []string{}
+	}
+	
+	result := make([]string, 0)
+	for _, origin := range strings.Split(origins, ",") {
+		trimmed := strings.TrimSpace(origin)
+		if trimmed != "" {
+			result = append(result, trimmed)
+		}
+	}
+	
+	return result
+}
+
+// IsDevelopment retorna true si el entorno es desarrollo
+func (c *Config) IsDevelopment() bool {
+	return c.Environment == "development"
+}
+
+// IsProduction retorna true si el entorno es producción
+func (c *Config) IsProduction() bool {
+	return c.Environment == "production"
+}

@@ -1,0 +1,86 @@
+package services
+
+import (
+	"fmt"
+
+	"{{.ModuleName}}/internal/app/dtos"
+	"{{.ModuleName}}/internal/app/models"
+	"{{.ModuleName}}/internal/app/repositories"
+)
+
+// UserService contiene la lógica de negocio para usuarios
+type UserService struct {
+	userRepo *repositories.UserRepository
+}
+
+// NewUserService crea una nueva instancia de UserService
+func NewUserService(userRepo *repositories.UserRepository) *UserService {
+	return &UserService{
+		userRepo: userRepo,
+	}
+}
+
+// GetAllUsers obtiene todos los usuarios
+func (s *UserService) GetAllUsers() ([]models.User, error) {
+	return s.userRepo.GetAll()
+}
+
+// GetUserByID obtiene un usuario por su ID
+func (s *UserService) GetUserByID(id int) (*models.User, error) {
+	user := s.userRepo.GetByID(id)
+	if user == nil {
+		return nil, fmt.Errorf("user not found")
+	}
+	return user, nil
+}
+
+// CreateUser crea un nuevo usuario
+func (s *UserService) CreateUser(dto dtos.CreateUserDTO) (*models.User, error) {
+	// Aquí puedes agregar lógica de negocio adicional:
+	// - Validar que el email no exista
+	// - Hashear contraseña
+	// - Enviar email de bienvenida
+	// - etc.
+
+	user := &models.User{
+		Name:  dto.Name,
+		Email: dto.Email,
+		Age:   dto.Age,
+	}
+
+	createdUser := s.userRepo.Create(user)
+	return createdUser, nil
+}
+
+// UpdateUser actualiza un usuario existente
+func (s *UserService) UpdateUser(id int, dto dtos.UpdateUserDTO) (*models.User, error) {
+	existingUser := s.userRepo.GetByID(id)
+	if existingUser == nil {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	// Actualizar campos si se proporcionan
+	if dto.Name != nil {
+		existingUser.Name = *dto.Name
+	}
+	if dto.Email != nil {
+		existingUser.Email = *dto.Email
+	}
+	if dto.Age != nil {
+		existingUser.Age = *dto.Age
+	}
+
+	updatedUser := s.userRepo.Update(existingUser)
+	return updatedUser, nil
+}
+
+// DeleteUser elimina un usuario
+func (s *UserService) DeleteUser(id int) error {
+	existingUser := s.userRepo.GetByID(id)
+	if existingUser == nil {
+		return fmt.Errorf("user not found")
+	}
+
+	s.userRepo.Delete(id)
+	return nil
+}
