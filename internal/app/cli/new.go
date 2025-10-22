@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -44,7 +45,14 @@ func runNewCommand(cmd *cobra.Command, args []string) error {
 	// Determinar el nombre del módulo
 	module := moduleName
 	if module == "" {
-		module = fmt.Sprintf("github.com/tu-usuario/%s", projectName)
+		// Intentar detectar el usuario de GitHub desde git config
+		githubUser := detectGitHubUser()
+		if githubUser != "" {
+			module = fmt.Sprintf("github.com/%s/%s", githubUser, projectName)
+		} else {
+			// Fallback: usar el nombre del proyecto directamente
+			module = projectName
+		}
 	}
 
 	// Crear la configuración del proyecto
@@ -96,10 +104,50 @@ func validateProjectName(name string) error {
 	return nil
 }
 
+// detectGitHubUser intenta detectar el usuario de GitHub desde la configuración de git
+func detectGitHubUser() string {
+	// Intentar obtener github.user
+	cmd := exec.Command("git", "config", "github.user")
+	if output, err := cmd.Output(); err == nil {
+		user := strings.TrimSpace(string(output))
+		if user != "" {
+			return user
+		}
+	}
+
+	// Fallback: intentar extraer de la URL del remote origin
+	cmd = exec.Command("git", "config", "remote.origin.url")
+	if output, err := cmd.Output(); err == nil {
+		url := strings.TrimSpace(string(output))
+		// Parsear URLs como: git@github.com:username/repo.git o https://github.com/username/repo.git
+		if strings.Contains(url, "github.com") {
+			// Para SSH: git@github.com:username/repo.git
+			if strings.HasPrefix(url, "git@github.com:") {
+				parts := strings.Split(strings.TrimPrefix(url, "git@github.com:"), "/")
+				if len(parts) > 0 {
+					return parts[0]
+				}
+			}
+			// Para HTTPS: https://github.com/username/repo.git
+			if strings.Contains(url, "github.com/") {
+				parts := strings.Split(url, "github.com/")
+				if len(parts) > 1 {
+					userRepo := strings.Split(parts[1], "/")
+					if len(userRepo) > 0 {
+						return userRepo[0]
+					}
+				}
+			}
+		}
+	}
+
+	return ""
+}
+
 func init() {
 	rootCmd.AddCommand(newCmd)
 
 	// Flags específicos del comando new
-	newCmd.Flags().StringVarP(&moduleName, "module", "m", "", "Nombre del módulo Go (por defecto: github.com/tu-usuario/nombre-proyecto)")
+	newCmd.Flags().StringVarP(&moduleName, "module", "m", "", "Nombre del módulo Go (detecta automáticamente desde git config o usa el nombre del proyecto)")
 	newCmd.Flags().BoolVar(&standalone, "standalone", false, "Generar proyecto sin helpers de Loom (código 100% independiente)")
 }
