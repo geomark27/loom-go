@@ -11,11 +11,12 @@ func main() {
 	// Cargar configuración
 	cfg := config.Load()
 
-	// Crear servidor
+	// Crear servidor con arquitectura modular
 	srv := server.New(cfg)
 
 	// Mensaje de inicio
 	log.Printf("🚀 Servidor %s iniciado en http://localhost:%s", "{{.Name}}", cfg.Port)
+	log.Printf("🏗️  Arquitectura: Modular (por dominios)")
 	log.Printf("✨ Proyecto generado con Loom")
 	log.Printf("📖 Documentación disponible en: docs/API.md")
 

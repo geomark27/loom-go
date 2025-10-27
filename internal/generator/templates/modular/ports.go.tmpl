@@ -1,0 +1,35 @@
+package users
+
+import "{{.ModuleName}}/internal/platform/events"
+
+// ========================================
+// OUTBOUND PORTS (interfaces que el módulo necesita del exterior)
+// ========================================
+
+// Repository define el contrato de persistencia para usuarios
+type Repository interface {
+	GetAll() ([]User, error)
+	GetByID(id int) (*User, error)
+	GetByEmail(email string) (*User, error)
+	Create(user *User) (*User, error)
+	Update(user *User) (*User, error)
+	Delete(id int) error
+}
+
+// EventPublisher permite al módulo publicar eventos de dominio
+type EventPublisher interface {
+	Publish(event events.Event) error
+}
+
+// ========================================
+// INBOUND PORTS (interfaces que el módulo ofrece al exterior)
+// ========================================
+
+// Service define el contrato del servicio de usuarios
+type Service interface {
+	GetAllUsers() ([]User, error)
+	GetUserByID(id int) (*User, error)
+	CreateUser(dto CreateUserDTO) (*User, error)
+	UpdateUser(id int, dto UpdateUserDTO) (*User, error)
+	DeleteUser(id int) error
+}

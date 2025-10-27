@@ -1,0 +1,65 @@
+package handlers
+
+import (
+	"encoding/json"
+	"net/http"
+	"time"
+)
+
+// HealthHandler maneja las rutas de salud del sistema
+type HealthHandler struct {
+	startTime time.Time
+}
+
+// NewHealthHandler crea una nueva instancia de HealthHandler
+func NewHealthHandler() *HealthHandler {
+	return &HealthHandler{
+		startTime: time.Now(),
+	}
+}
+
+// HealthResponse representa la respuesta de salud
+type HealthResponse struct {
+	Status    string    `json:"status"`
+	Timestamp time.Time `json:"timestamp"`
+	Service   string    `json:"service"`
+	Version   string    `json:"version"`
+	Uptime    string    `json:"uptime"`
+}
+
+// Health retorna el estado de salud básico del servicio
+func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
+	response := HealthResponse{
+		Status:    "healthy",
+		Timestamp: time.Now(),
+		Service:   "{{.Name}}",
+		Version:   "v1.0.0",
+		Uptime:    time.Since(h.startTime).String(),
+	}
+	
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+// Ready retorna el estado de preparación del servicio
+func (h *HealthHandler) Ready(w http.ResponseWriter, r *http.Request) {
+	// Aquí puedes agregar verificaciones adicionales como:
+	// - Conectividad a la base de datos
+	// - Servicios externos
+	// - Dependencias críticas
+	
+	response := map[string]interface{}{
+		"status": "ready",
+		"timestamp": time.Now(),
+		"checks": map[string]string{
+			"service": "ok",
+			// "database": "ok", // Cuando se implemente
+			// "cache": "ok",    // Cuando se implemente
+		},
+	}
+	
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}

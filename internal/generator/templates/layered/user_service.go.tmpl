@@ -1,0 +1,120 @@
+package services
+
+import (
+	"fmt"
+
+	"{{.ModuleName}}/internal/app/dtos"
+	"{{.ModuleName}}/internal/app/models"
+	"{{.ModuleName}}/internal/app/repositories"
+)
+
+// UserService define el contrato del servicio de usuarios
+type UserService interface {
+	GetAllUsers() ([]models.User, error)
+	GetUserByID(id int) (*models.User, error)
+	CreateUser(dto dtos.CreateUserDTO) (*models.User, error)
+	UpdateUser(id int, dto dtos.UpdateUserDTO) (*models.User, error)
+	DeleteUser(id int) error
+}
+
+// userService es la implementación privada del servicio
+type userService struct {
+	userRepo repositories.UserRepository
+}
+
+// NewUserService crea una nueva instancia de UserService
+func NewUserService(userRepo repositories.UserRepository) UserService {
+	return &userService{
+		userRepo: userRepo,
+	}
+}
+
+// GetAllUsers obtiene todos los usuarios
+func (s *userService) GetAllUsers() ([]models.User, error) {
+	return s.userRepo.GetAll()
+}
+
+// GetUserByID obtiene un usuario por su ID
+func (s *userService) GetUserByID(id int) (*models.User, error) {
+	user, err := s.userRepo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, fmt.Errorf("user not found")
+	}
+	return user, nil
+}
+
+// CreateUser crea un nuevo usuario
+func (s *userService) CreateUser(dto dtos.CreateUserDTO) (*models.User, error) {
+	// Aquí puedes agregar lógica de negocio adicional:
+	// - Validar que el email no exista
+	// - Hashear contraseña
+	// - Enviar email de bienvenida
+	// - etc.
+
+	// Verificar si el email ya existe
+	existingUser, err := s.userRepo.GetByEmail(dto.Email)
+	if err != nil {
+		return nil, err
+	}
+	if existingUser != nil {
+		return nil, fmt.Errorf("email already exists")
+	}
+
+	user := &models.User{
+		Name:  dto.Name,
+		Email: dto.Email,
+		Age:   dto.Age,
+	}
+
+	createdUser, err := s.userRepo.Create(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdUser, nil
+}
+
+// UpdateUser actualiza un usuario existente
+func (s *userService) UpdateUser(id int, dto dtos.UpdateUserDTO) (*models.User, error) {
+	existingUser, err := s.userRepo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if existingUser == nil {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	// Actualizar campos si se proporcionan
+	if dto.Name != nil {
+		existingUser.Name = *dto.Name
+	}
+	if dto.Email != nil {
+		existingUser.Email = *dto.Email
+	}
+	if dto.Age != nil {
+		existingUser.Age = *dto.Age
+	}
+
+	updatedUser, err := s.userRepo.Update(existingUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedUser, nil
+}
+
+// DeleteUser elimina un usuario
+func (s *userService) DeleteUser(id int) error {
+	existingUser, err := s.userRepo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	if existingUser == nil {
+		return fmt.Errorf("user not found")
+	}
+
+	return s.userRepo.Delete(id)
+}

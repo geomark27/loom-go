@@ -1,0 +1,71 @@
+package server
+
+import (
+	"context"
+	"net/http"
+	"time"
+
+	"{{.ModuleName}}/internal/modules/users"
+	"{{.ModuleName}}/internal/platform/config"
+	"{{.ModuleName}}/internal/platform/events"
+	"{{.ModuleName}}/internal/shared/middleware"
+
+	"github.com/gorilla/mux"
+)
+
+// Server representa el servidor HTTP
+type Server struct {
+	config     *config.Config
+	router     *mux.Router
+	httpServer *http.Server
+	eventBus   events.EventBus
+}
+
+// New crea una nueva instancia del servidor con arquitectura modular
+func New(cfg *config.Config) *Server {
+	// Crear Event Bus
+	eventBus := events.NewEventBus()
+
+	// Inicializar módulos
+	usersModule := users.NewModule(eventBus)
+
+	// Crear router
+	router := mux.NewRouter()
+
+	// Configurar middleware global
+	corsMiddleware := middleware.NewCORSMiddleware(cfg.CorsAllowedOrigins)
+	router.Use(corsMiddleware)
+
+	// Registrar rutas de módulos
+	api := router.PathPrefix("/api/v1").Subrouter()
+	usersModule.RegisterRoutes(api)
+
+	// Health check
+	registerHealthRoutes(router)
+
+	// Configurar servidor HTTP
+	httpServer := &http.Server{
+		Addr:         ":" + cfg.Port,
+		Handler:      router,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	return &Server{
+		config:     cfg,
+		router:     router,
+		httpServer: httpServer,
+		eventBus:   eventBus,
+	}
+}
+
+// Start inicia el servidor HTTP
+func (s *Server) Start() error {
+	return s.httpServer.ListenAndServe()
+}
+
+// Shutdown apaga el servidor de forma elegante
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.httpServer.Shutdown(ctx)
+}

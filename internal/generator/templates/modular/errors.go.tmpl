@@ -1,0 +1,25 @@
+package users
+
+import "fmt"
+
+// DomainError representa un error de dominio del módulo users
+type DomainError struct {
+	Code    string
+	Message string
+}
+
+func (e *DomainError) Error() string {
+	return fmt.Sprintf("[%s] %s", e.Code, e.Message)
+}
+
+// Errores de dominio predefinidos
+var (
+	ErrUserNotFound      = &DomainError{Code: "USER_NOT_FOUND", Message: "user not found"}
+	ErrUserAlreadyExists = &DomainError{Code: "USER_ALREADY_EXISTS", Message: "user with this email already exists"}
+	ErrInvalidUserData   = &DomainError{Code: "INVALID_USER_DATA", Message: "invalid user data"}
+)
+
+// NewDomainError crea un nuevo error de dominio personalizado
+func NewDomainError(code, message string) *DomainError {
+	return &DomainError{Code: code, Message: message}
+}

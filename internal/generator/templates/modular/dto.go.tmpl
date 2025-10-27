@@ -1,0 +1,51 @@
+package users
+
+{{- if .UseHelpers}}
+import "fmt"
+{{- else}}
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
+{{- end}}
+
+// CreateUserDTO representa los datos para crear un usuario
+type CreateUserDTO struct {
+	Name  string `json:"name"{{if .UseHelpers}} validate:"required"{{end}}`
+	Email string `json:"email"{{if .UseHelpers}} validate:"required,email"{{end}}`
+	Age   int    `json:"age"{{if .UseHelpers}} validate:"required,min=0,max=150"{{end}}`
+}
+
+{{- if not .UseHelpers}}
+
+// Validate valida el DTO de creación
+func (dto CreateUserDTO) Validate() error {
+	if strings.TrimSpace(dto.Name) == "" {
+		return fmt.Errorf("name is required")
+	}
+
+	if strings.TrimSpace(dto.Email) == "" {
+		return fmt.Errorf("email is required")
+	}
+
+	// Validar formato de email básico
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	if !emailRegex.MatchString(dto.Email) {
+		return fmt.Errorf("invalid email format")
+	}
+
+	if dto.Age < 0 || dto.Age > 150 {
+		return fmt.Errorf("age must be between 0 and 150")
+	}
+
+	return nil
+}
+{{- end}}
+
+// UpdateUserDTO representa los datos para actualizar un usuario
+type UpdateUserDTO struct {
+	Name  *string `json:"name,omitempty"`
+	Email *string `json:"email,omitempty"`
+	Age   *int    `json:"age,omitempty"`
+}
