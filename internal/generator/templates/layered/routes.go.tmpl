@@ -1,0 +1,46 @@
+package server
+
+import (
+	"net/http"
+	"{{.ModuleName}}/internal/app/handlers"
+	"github.com/gorilla/mux"
+)
+
+// registerRoutes registra todas las rutas de la aplicación
+func registerRoutes(
+	router *mux.Router,
+	healthHandler *handlers.HealthHandler,
+	userHandler *handlers.UserHandler,
+) {
+	// API v1
+	api := router.PathPrefix("/api/v1").Subrouter()
+	
+	// Rutas de salud
+	api.HandleFunc("/health", healthHandler.Health).Methods("GET")
+	api.HandleFunc("/health/ready", healthHandler.Ready).Methods("GET")
+	
+	// Rutas de usuarios
+	users := api.PathPrefix("/users").Subrouter()
+	users.HandleFunc("", userHandler.GetUsers).Methods("GET")
+	users.HandleFunc("", userHandler.CreateUser).Methods("POST")
+	users.HandleFunc("/{id}", userHandler.GetUser).Methods("GET")
+	users.HandleFunc("/{id}", userHandler.UpdateUser).Methods("PUT")
+	users.HandleFunc("/{id}", userHandler.DeleteUser).Methods("DELETE")
+	
+	// Ruta raíz
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{
+			"message": "¡Bienvenido a {{.Name}}!",
+			"status": "success",
+			"version": "v1.0.0",
+			"generated_with": "Loom",
+			"endpoints": {
+				"health": "/api/v1/health",
+				"users": "/api/v1/users",
+				"docs": "/docs/API.md"
+			}
+		}`))
+	}).Methods("GET")
+}

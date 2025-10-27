@@ -1,0 +1,92 @@
+package events
+
+import (
+	"sync"
+	"time"
+)
+
+// Event representa un evento genérico del sistema
+type Event struct {
+	Type      string
+	Data      interface{}
+	Timestamp time.Time
+}
+
+// EventHandler es una función que maneja un evento
+type EventHandler func(Event)
+
+// EventBus es la interfaz del bus de eventos
+type EventBus interface {
+	Publish(event Event) error
+	Subscribe(eventType string, handler EventHandler)
+	Unsubscribe(eventType string, handler EventHandler)
+}
+
+// eventBus es la implementación del bus de eventos en memoria
+type eventBus struct {
+	handlers map[string][]EventHandler
+	mutex    sync.RWMutex
+}
+
+// NewEventBus crea una nueva instancia del bus de eventos
+func NewEventBus() EventBus {
+	return &eventBus{
+		handlers: make(map[string][]EventHandler),
+	}
+}
+
+// Publish publica un evento a todos los suscriptores
+func (eb *eventBus) Publish(event Event) error {
+	eb.mutex.RLock()
+	handlers, exists := eb.handlers[event.Type]
+	eb.mutex.RUnlock()
+
+	if !exists {
+		return nil // No hay suscriptores, no es un error
+	}
+
+	// Ejecutar handlers en goroutines separadas (asíncrono)
+	for _, handler := range handlers {
+		go func(h EventHandler) {
+			defer func() {
+				if r := recover(); r != nil {
+					// Manejar pánicos en handlers sin afectar el publicador
+					// En producción, esto debería loggear el error
+				}
+			}()
+			h(event)
+		}(handler)
+	}
+
+	return nil
+}
+
+// Subscribe suscribe un handler a un tipo de evento
+func (eb *eventBus) Subscribe(eventType string, handler EventHandler) {
+	eb.mutex.Lock()
+	defer eb.mutex.Unlock()
+
+	eb.handlers[eventType] = append(eb.handlers[eventType], handler)
+}
+
+// Unsubscribe desuscribe un handler de un tipo de evento
+func (eb *eventBus) Unsubscribe(eventType string, handler EventHandler) {
+	eb.mutex.Lock()
+	defer eb.mutex.Unlock()
+
+	handlers, exists := eb.handlers[eventType]
+	if !exists {
+		return
+	}
+
+	// Filtrar el handler a eliminar
+	// Nota: esta implementación simple puede no funcionar con todos los casos
+	// En producción, considerar usar IDs de suscripción
+	for i, h := range handlers {
+		// Comparación básica de funciones (limitada en Go)
+		if &h == &handler {
+			eb.handlers[eventType] = append(handlers[:i], handlers[i+1:]...)
+			break
+		}
+	}
+}

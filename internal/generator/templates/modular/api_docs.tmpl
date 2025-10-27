@@ -1,0 +1,79 @@
+# {{.Name}} - Documentación de API
+
+Esta documentación describe los endpoints disponibles en la API de **{{.Name}}**.
+
+## Información General
+
+- **URL Base**: `http://localhost:8080/api/v1`
+- **Formato de Respuesta**: JSON
+- **Autenticación**: No requerida (por ahora)
+
+## Endpoints
+
+### Salud del Sistema
+
+#### GET /health
+Verifica el estado básico del servicio.
+
+**Respuesta:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-08-26T10:30:00Z",
+  "service": "{{.Name}}",
+  "version": "v1.0.0",
+  "uptime": "2h30m15s"
+}
+```
+
+### Usuarios
+
+#### GET /users
+Obtiene todos los usuarios.
+
+**Respuesta:**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Juan Pérez",
+      "email": "juan@example.com",
+      "age": 25
+    }
+  ],
+  "count": 1,
+  "status": "success",
+  "message": "Usuarios obtenidos exitosamente"
+}
+```
+
+#### POST /users
+Crea un nuevo usuario.
+
+**Cuerpo de la petición:**
+```json
+{
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "age": 25
+}
+```
+
+## Ejemplos de Uso
+
+### Crear un usuario
+```bash
+curl -X POST http://localhost:8080/api/v1/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Ana García",
+    "email": "ana@example.com",
+    "age": 28
+  }'
+```
+
+### Obtener todos los usuarios
+```bash
+curl http://localhost:8080/api/v1/users
+```

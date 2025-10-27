@@ -1,0 +1,132 @@
+package users
+
+import (
+	"time"
+
+	"{{.ModuleName}}/internal/platform/events"
+)
+
+// service es la implementación privada de Service
+type service struct {
+	repo     Repository
+	eventBus EventPublisher
+}
+
+// NewService crea una nueva instancia de Service
+func NewService(repo Repository, eventBus EventPublisher) Service {
+	return &service{
+		repo:     repo,
+		eventBus: eventBus,
+	}
+}
+
+// GetAllUsers obtiene todos los usuarios
+func (s *service) GetAllUsers() ([]User, error) {
+	return s.repo.GetAll()
+}
+
+// GetUserByID obtiene un usuario por su ID
+func (s *service) GetUserByID(id int) (*User, error) {
+	user, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, ErrUserNotFound
+	}
+	return user, nil
+}
+
+// CreateUser crea un nuevo usuario
+func (s *service) CreateUser(dto CreateUserDTO) (*User, error) {
+	// Verificar si el email ya existe
+	existingUser, err := s.repo.GetByEmail(dto.Email)
+	if err != nil {
+		return nil, err
+	}
+	if existingUser != nil {
+		return nil, ErrUserAlreadyExists
+	}
+
+	// Crear el usuario
+	user := &User{
+		Name:  dto.Name,
+		Email: dto.Email,
+		Age:   dto.Age,
+	}
+
+	createdUser, err := s.repo.Create(user)
+	if err != nil {
+		return nil, err
+	}
+
+	// Publicar evento de dominio
+	s.eventBus.Publish(events.Event{
+		Type:      EventUserCreated,
+		Data:      createdUser,
+		Timestamp: time.Now(),
+	})
+
+	return createdUser, nil
+}
+
+// UpdateUser actualiza un usuario existente
+func (s *service) UpdateUser(id int, dto UpdateUserDTO) (*User, error) {
+	existingUser, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if existingUser == nil {
+		return nil, ErrUserNotFound
+	}
+
+	// Actualizar campos si se proporcionan
+	if dto.Name != nil {
+		existingUser.Name = *dto.Name
+	}
+	if dto.Email != nil {
+		existingUser.Email = *dto.Email
+	}
+	if dto.Age != nil {
+		existingUser.Age = *dto.Age
+	}
+
+	updatedUser, err := s.repo.Update(existingUser)
+	if err != nil {
+		return nil, err
+	}
+
+	// Publicar evento de dominio
+	s.eventBus.Publish(events.Event{
+		Type:      EventUserUpdated,
+		Data:      updatedUser,
+		Timestamp: time.Now(),
+	})
+
+	return updatedUser, nil
+}
+
+// DeleteUser elimina un usuario
+func (s *service) DeleteUser(id int) error {
+	existingUser, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	if existingUser == nil {
+		return ErrUserNotFound
+	}
+
+	err = s.repo.Delete(id)
+	if err != nil {
+		return err
+	}
+
+	// Publicar evento de dominio
+	s.eventBus.Publish(events.Event{
+		Type:      EventUserDeleted,
+		Data:      map[string]int{"id": id},
+		Timestamp: time.Now(),
+	})
+
+	return nil
+}

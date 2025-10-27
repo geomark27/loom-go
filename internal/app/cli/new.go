@@ -28,6 +28,7 @@ El proyecto generado incluirá:
 var (
 	standalone bool
 	moduleName string
+	modular    bool
 )
 
 func runNewCommand(cmd *cobra.Command, args []string) error {
@@ -55,13 +56,21 @@ func runNewCommand(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// Determinar arquitectura
+	architecture := "layered"
+	if modular {
+		architecture = "modular"
+	}
+
 	// Crear la configuración del proyecto
 	config := &generator.ProjectConfig{
-		Name:        projectName,
-		Path:        projectPath,
-		ModuleName:  module,
-		Description: fmt.Sprintf("Proyecto %s generado con Loom", projectName),
-		UseHelpers:  !standalone, // UseHelpers es true por defecto, false si --standalone está activo
+		Name:         projectName,
+		Path:         projectPath,
+		ModuleName:   module,
+		Description:  fmt.Sprintf("Proyecto %s generado con Loom", projectName),
+		UseHelpers:   !standalone, // UseHelpers es true por defecto, false si --standalone está activo
+		IsModular:    modular,
+		Architecture: architecture,
 	}
 
 	// Generar el proyecto
@@ -70,13 +79,33 @@ func runNewCommand(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("error generando proyecto: %w", err)
 	}
 
-	// Mensaje de éxito
+	// Mensaje de éxito con información de arquitectura
 	fmt.Printf("✅ Proyecto '%s' creado exitosamente en %s\n", projectName, projectPath)
 
-	if config.UseHelpers {
-		fmt.Printf("📦 Incluye helpers de Loom para desarrollo rápido\n")
+	// Información de arquitectura
+	if config.IsModular {
+		fmt.Printf("\n🏗️  Arquitectura: Modular (por dominios)\n")
+		fmt.Printf("   → Ideal para: Proyectos grandes (20+ endpoints), equipos, microservicios\n")
+		fmt.Printf("   → Módulos: users (ejemplo generado)\n")
+		fmt.Printf("\n💡 Tips:\n")
+		fmt.Printf("   • Usa 'loom generate module <name>' para agregar módulos\n")
+		fmt.Printf("   • Mantén módulos independientes (usa Event Bus para comunicación)\n")
+		fmt.Printf("   • Cada módulo tiene su propio ports.go con interfaces\n")
 	} else {
-		fmt.Printf("🔧 Proyecto standalone (sin dependencias de Loom)\n")
+		fmt.Printf("\n🏗️  Arquitectura: Layered (por capas)\n")
+		fmt.Printf("   → Ideal para: APIs pequeñas (< 20 endpoints), MVPs, prototipos\n")
+		fmt.Printf("   → Estructura: handlers → services → repositories\n")
+		fmt.Printf("\n💡 Tips:\n")
+		fmt.Printf("   • Empieza simple, escala cuando lo necesites\n")
+		fmt.Printf("   • Usa 'loom generate module <name>' para agregar recursos\n")
+		fmt.Printf("   • Considera --modular si tienes 20+ endpoints\n")
+	}
+
+	// Información de helpers
+	if config.UseHelpers {
+		fmt.Printf("\n📦 Helpers: Incluidos (validación, respuestas, logging)\n")
+	} else {
+		fmt.Printf("\n🔧 Modo: Standalone (sin dependencias externas)\n")
 	}
 
 	fmt.Printf("\nPróximos pasos:\n")
@@ -150,4 +179,5 @@ func init() {
 	// Flags específicos del comando new
 	newCmd.Flags().StringVarP(&moduleName, "module", "m", "", "Nombre del módulo Go (detecta automáticamente desde git config o usa el nombre del proyecto)")
 	newCmd.Flags().BoolVar(&standalone, "standalone", false, "Generar proyecto sin helpers de Loom (código 100% independiente)")
+	newCmd.Flags().BoolVar(&modular, "modular", false, "Generar arquitectura modular por dominio (recomendado para proyectos grandes con 20+ endpoints)")
 }

@@ -1,0 +1,36 @@
+package users
+
+import "github.com/gorilla/mux"
+
+// Module representa el módulo de usuarios completo
+type Module struct {
+	service Service
+	handler *handler
+}
+
+// NewModule crea e inicializa el módulo de usuarios con todas sus dependencias
+func NewModule(eventBus EventPublisher) *Module {
+	// Crear repositorio
+	repo := NewRepository()
+
+	// Crear servicio
+	service := NewService(repo, eventBus)
+
+	// Crear handler
+	handler := NewHandler(service)
+
+	return &Module{
+		service: service,
+		handler: handler,
+	}
+}
+
+// Service retorna el servicio del módulo (para ser usado por otros módulos si es necesario)
+func (m *Module) Service() Service {
+	return m.service
+}
+
+// RegisterRoutes registra las rutas HTTP del módulo
+func (m *Module) RegisterRoutes(router *mux.Router) {
+	m.handler.RegisterRoutes(router)
+}
