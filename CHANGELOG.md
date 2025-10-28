@@ -1,128 +1,253 @@
-# Changelog
+# Changelog# Changelog
 
-Todos los cambios notables de este proyecto serán documentados en este archivo.
 
-El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
-y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
----
+Todos los cambios notables de este proyecto serán documentados en este archivo.Todos los cambios notables de este proyecto serán documentados en este archivo.
 
-## [1.0.0] - 2025-10-27 🎉
 
-### 🚀 Release Oficial v1.0.0
 
-**Primera versión estable de producción** de Loom. Esta versión marca la madurez del proyecto con todas las funcionalidades core completas y testeadas.
+El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 
-### ✨ Agregado en v1.0.0
+y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
+
+
+
+------
+
+
+
+## [1.0.0] - 2025-10-27 🎉## [1.0.0] - 2025-10-27 🎉
+
+
+
+### 🚀 Release Oficial v1.0.0### 🚀 Release Oficial v1.0.0
+
+
+
+**Primera versión estable de producción** de Loom. Esta versión marca la madurez del proyecto con todas las funcionalidades core completas y testeadas.**Primera versión estable de producción** de Loom. Esta versión marca la madurez del proyecto con todas las funcionalidades core completas y testeadas.
+
+
+
+### ✨ Características Principales### ✨ Agregado en v1.0.0
+
 - **Comando `loom add`**: Sistema completo de addons para extender proyectos
-  - **Routers**: `loom add router [gin|chi|echo]` - Reemplaza Gorilla Mux
-  - **ORMs**: `loom add orm [gorm|sqlc]` - Añade ORMs (estructura lista, implementación en progreso)
-  - **Databases**: `loom add database [postgres|mysql|mongodb|redis]` - Configura bases de datos
-    - PostgreSQL completamente implementado
-    - MySQL, MongoDB, Redis con estructura base
-  - **Auth**: `loom add auth [jwt|oauth2]` - Sistema de autenticación (estructura lista)
-  - **Docker**: `loom add docker` - Añade Dockerfile, docker-compose.yml y .dockerignore
-  - `loom add list` - Lista todos los addons disponibles
+
+#### Comando `loom new` - Generador de Proyectos  - **Routers**: `loom add router [gin|chi|echo]` - Reemplaza Gorilla Mux
+
+- Generación de proyectos Go con arquitectura profesional  - **ORMs**: `loom add orm [gorm|sqlc]` - Añade ORMs (estructura lista, implementación en progreso)
+
+- Soporte para arquitectura **Layered** (por capas) y **Modular** (por dominios)  - **Databases**: `loom add database [postgres|mysql|mongodb|redis]` - Configura bases de datos
+
+- Modelo híbrido: Con helpers opcionales o 100% standalone    - PostgreSQL completamente implementado
+
+- Detección automática del usuario de GitHub desde git config    - MySQL, MongoDB, Redis con estructura base
+
+- Flag `--standalone` para proyectos completamente independientes  - **Auth**: `loom add auth [jwt|oauth2]` - Sistema de autenticación (estructura lista)
+
+- Flag `--modular` para arquitectura basada en dominios  - **Docker**: `loom add docker` - Añade Dockerfile, docker-compose.yml y .dockerignore
+
+- Flag `--module` para especificar nombre del módulo manualmente  - `loom add list` - Lista todos los addons disponibles
+
 - **Sistema de Addons**: Arquitectura extensible con interfaces
-  - `AddonManager` con registro y detección de conflictos
-  - `ProjectDetector` para identificar tecnologías instaladas
-  - Helpers para actualizar `go.mod`, `.env.example` e imports
-- **Generación de código avanzada**:
-  - Templates completos para Gin, Chi y Echo
-  - Reescritura inteligente de `server.go` según router
-  - Dockerfile multi-stage optimizado
-  - docker-compose.yml con detección de base de datos
-  - Actualización automática de Makefile con comandos Docker
 
-### 📚 Documentación
-- **Consolidación completa de documentación**:
-  - `README.md` - Documentación principal para usuarios (instalación, quick start, ejemplos)
-  - `DOCS.md` - Documentación técnica completa (arquitecturas, APIs, troubleshooting)
-  - `CHANGELOG.md` - Historial de versiones
-- Eliminados 13+ archivos .md obsoletos y fragmentados
-- Guías detalladas de arquitecturas Layered vs Modular
-- Documentación completa de Helpers API
-- Buenas prácticas y troubleshooting
+#### Comando `loom generate` - Generación de Componentes  - `AddonManager` con registro y detección de conflictos
 
-### 🔧 Cambiado
-- Versión del CLI actualizada a 1.0.0
-- Estructura de documentación simplificada (de 30+ archivos a solo 3)
-- Mejoras en mensajes de ayuda y next steps
+- Generación de módulos completos (handler, service, repository, model, DTO)  - `ProjectDetector` para identificar tecnologías instaladas
 
-### 🎯 Features Completas en v1.0.0
-1. ✅ **Generación de proyectos** (`loom new`) - Layered y Modular
-2. ✅ **Generación de componentes** (`loom generate`) - Módulos, handlers, services, etc.
+- Generación de componentes individuales:  - Helpers para actualizar `go.mod`, `.env.example` e imports
+
+  - `loom generate handler` - HTTP handlers- **Generación de código avanzada**:
+
+  - `loom generate service` - Servicios de lógica de negocio  - Templates completos para Gin, Chi y Echo
+
+  - `loom generate model` - Modelos de datos  - Reescritura inteligente de `server.go` según router
+
+  - `loom generate middleware` - Middlewares HTTP  - Dockerfile multi-stage optimizado
+
+- Detección automática de arquitectura del proyecto (Layered/Modular)  - docker-compose.yml con detección de base de datos
+
+- Flags `--dry-run` para vista previa y `--force` para sobrescribir  - Actualización automática de Makefile con comandos Docker
+
+
+
+#### Comando `loom add` - Sistema de Addons### 📚 Documentación
+
+- **Routers**: Reemplazo de routers HTTP- **Consolidación completa de documentación**:
+
+  - `loom add router gin` - Migrar a Gin  - `README.md` - Documentación principal para usuarios (instalación, quick start, ejemplos)
+
+  - `loom add router chi` - Migrar a Chi  - `DOCS.md` - Documentación técnica completa (arquitecturas, APIs, troubleshooting)
+
+  - `loom add router echo` - Migrar a Echo  - `CHANGELOG.md` - Historial de versiones
+
+- **Databases**: Configuración de bases de datos- Eliminados 13+ archivos .md obsoletos y fragmentados
+
+  - `loom add database postgres` - PostgreSQL con docker-compose- Guías detalladas de arquitecturas Layered vs Modular
+
+  - `loom add database mysql` - MySQL- Documentación completa de Helpers API
+
+  - `loom add database mongodb` - MongoDB- Buenas prácticas y troubleshooting
+
+  - `loom add database redis` - Redis
+
+- **ORMs**: Integración de ORMs### 🔧 Cambiado
+
+  - `loom add orm gorm` - GORM (estructura base)- Versión del CLI actualizada a 1.0.0
+
+- **Auth**: Sistemas de autenticación- Estructura de documentación simplificada (de 30+ archivos a solo 3)
+
+  - `loom add auth jwt` - JWT (estructura base)- Mejoras en mensajes de ayuda y next steps
+
+  - `loom add auth oauth2` - OAuth2 (estructura base)
+
+- **Docker**: Dockerización### 🎯 Features Completas en v1.0.0
+
+  - `loom add docker` - Dockerfile multi-stage + docker-compose.yml1. ✅ **Generación de proyectos** (`loom new`) - Layered y Modular
+
+- `loom add list` - Lista todos los addons disponibles2. ✅ **Generación de componentes** (`loom generate`) - Módulos, handlers, services, etc.
+
 3. ✅ **Sistema de addons** (`loom add`) - Routers, DBs, Docker
-4. ✅ **Sistema de actualización** (`loom upgrade`) - Con backups y restore
-5. ✅ **Versionado** (`loom version`) - Tracking de versiones
-6. ✅ **Helpers package** - Response, Validator, Logger, Errors
-7. ✅ **Documentación completa** - User-facing y technical
 
-### 📦 Instalación
-```bash
-go install github.com/geomark27/loom-go/cmd/loom@latest
+#### Comando `loom upgrade` - Actualización de Proyectos4. ✅ **Sistema de actualización** (`loom upgrade`) - Con backups y restore
+
+- Sistema de versionado de proyectos (`.loom/version.json`)5. ✅ **Versionado** (`loom version`) - Tracking de versiones
+
+- Comparación inteligente de versiones6. ✅ **Helpers package** - Response, Validator, Logger, Errors
+
+- Backup automático antes de actualizar7. ✅ **Documentación completa** - User-facing y technical
+
+- `loom upgrade --show-changes` - Vista previa de cambios
+
+- `loom upgrade --no-backup` - Sin backup### 📦 Instalación
+
+- `loom upgrade --restore` - Restaurar desde backup```bash
+
+- Actualización selectiva de componentesgo install github.com/geomark27/loom-go/cmd/loom@latest
+
 ```
 
----
+#### pkg/helpers - Librería de Utilidades
 
-## [0.6.0] - 2025-10-27
+- **HTTP Responses**: Respuestas estandarizadas---
 
-### ✨ Agregado
-- Sistema base de addons (preparación para v1.0.0)
-- Estructura de `internal/addon/`
-- Interfaces para extensiones futuras
+  - `RespondSuccess`, `RespondError`, `RespondCreated`, etc.
 
----
+- **Validator**: Validación de structs con tags## [0.6.0] - 2025-10-27
 
-## [0.5.0] - 2025-10-27
+  - `ValidateStruct`, `ValidateEmail`, `ValidateMin/Max`
 
-### ✨ Agregado
-- **Comando `loom upgrade`**: Sistema completo de actualización de proyectos
-  - Detección automática de versión del proyecto
-  - Backup automático antes de actualizar (con opción `--no-backup`)
+- **Logger**: Logging estructurado### ✨ Agregado
+
+  - Interfaz Logger con implementación DefaultLogger- Sistema base de addons (preparación para v1.0.0)
+
+- **Errors**: Manejo de errores con contexto- Estructura de `internal/addon/`
+
+  - `AppError` type, `Wrap/Unwrap`, errores predefinidos- Interfaces para extensiones futuras
+
+- **Context**: Helpers para context de Go
+
+  - `GetUserID`, `GetRequestID`, `GetTenantID`---
+
+
+
+### 🏗️ Arquitectura## [0.5.0] - 2025-10-27
+
+
+
+#### Templates Embebidos### ✨ Agregado
+
+- 17 plantillas organizadas en `internal/generator/templates/`- **Comando `loom upgrade`**: Sistema completo de actualización de proyectos
+
+- Soporte para generación condicional (con/sin helpers)  - Detección automática de versión del proyecto
+
+- Templates para ambas arquitecturas (Layered y Modular)  - Backup automático antes de actualizar (con opción `--no-backup`)
+
   - Aplicación de migraciones incrementales entre versiones
-  - Restauración de backups con `--restore`
-  - Vista previa de cambios con `--show-changes`
-- **Comando `loom version`**: Muestra versión del CLI y del proyecto actual
-- **Sistema de versionado**: Infraestructura completa para gestión de versiones
-  - `internal/version/`: Detección y comparación de versiones
-  - `internal/upgrader/`: Sistema de actualización y backups
-  - Archivo `.loom` para tracking de versión del proyecto
-- **Changelog integrado**: Muestra cambios entre versiones durante upgrade
 
-### 🔧 Cambiado
+#### Proyectos Generados Incluyen  - Restauración de backups con `--restore`
+
+- ✅ Arquitectura modular (handlers, services, repositories, dtos, models)  - Vista previa de cambios con `--show-changes`
+
+- ✅ API REST funcional con CRUD de ejemplo- **Comando `loom version`**: Muestra versión del CLI y del proyecto actual
+
+- ✅ Servidor HTTP configurado (Gorilla Mux por defecto)- **Sistema de versionado**: Infraestructura completa para gestión de versiones
+
+- ✅ Middlewares (CORS, etc.)  - `internal/version/`: Detección y comparación de versiones
+
+- ✅ Health checks implementados  - `internal/upgrader/`: Sistema de actualización y backups
+
+- ✅ Configuración de entorno (.env.example)  - Archivo `.loom` para tracking de versión del proyecto
+
+- ✅ Makefile con comandos útiles- **Changelog integrado**: Muestra cambios entre versiones durante upgrade
+
+- ✅ Documentación (README.md + API.md)
+
+- ✅ .gitignore completo### 🔧 Cambiado
+
 - Versión del CLI actualizada a 0.5.0
-- Proyectos ahora incluyen archivo `.loom` con metadata
 
-### 📚 Documentación
-- Documentación del comando upgrade en help
-- Ejemplos de uso de upgrade y restore
+### 📚 Documentación- Proyectos ahora incluyen archivo `.loom` con metadata
 
----
+- `README.md` - Documentación principal para usuarios
 
-## [0.4.0] - 2025-10-27
+- `DOCS.md` - Documentación técnica completa### 📚 Documentación
 
-### ✨ Agregado
-- **Comando `loom generate`**: Generación de componentes individuales en proyectos existentes
-  - `loom generate module <name>`: Genera módulo completo (handler, service, repository, model, DTO)
-  - `loom generate handler <name>`: Genera solo handler
+- `CHANGELOG.md` - Historial de versiones- Documentación del comando upgrade en help
+
+- Guías detalladas de arquitecturas Layered vs Modular- Ejemplos de uso de upgrade y restore
+
+- Documentación completa de Helpers API
+
+- Buenas prácticas y troubleshooting---
+
+
+
+### 🔧 Tecnologías## [0.4.0] - 2025-10-27
+
+- Go 1.23+
+
+- Cobra CLI framework### ✨ Agregado
+
+- Gorilla Mux (router HTTP por defecto)- **Comando `loom generate`**: Generación de componentes individuales en proyectos existentes
+
+- text/template para generación de código  - `loom generate module <name>`: Genera módulo completo (handler, service, repository, model, DTO)
+
+- embed package para templates embebidos  - `loom generate handler <name>`: Genera solo handler
+
   - `loom generate service <name>`: Genera solo service
-  - `loom generate model <name>`: Genera solo model
-  - `loom generate middleware <name>`: Genera middleware HTTP
-- **Detección automática de arquitectura**: El comando genera código apropiado según Layered/Modular
-- **Flags globales para generate**:
-  - `--force`: Sobrescribe archivos existentes
-  - `--dry-run`: Vista previa sin crear archivos
+
+### 🎯 Filosofía  - `loom generate model <name>`: Genera solo model
+
+- **No es un framework** - Solo genera código, sin overhead en runtime  - `loom generate middleware <name>`: Genera middleware HTTP
+
+- **Idiomático** - Respeta las convenciones de Go- **Detección automática de arquitectura**: El comando genera código apropiado según Layered/Modular
+
+- **Sin magia** - Código explícito y entendible- **Flags globales para generate**:
+
+- **Extensible** - Fácil agregar nuevas funcionalidades  - `--force`: Sobrescribe archivos existentes
+
+- **Zero vendor lock-in** - Código generado es 100% tuyo  - `--dry-run`: Vista previa sin crear archivos
+
 - **Alias de comandos**: `gen`, `g` para generate; aliases para subcomandos
-- **Validación de nombres**: Verifica que los nombres de componentes sean válidos
+
+---- **Validación de nombres**: Verifica que los nombres de componentes sean válidos
+
 - **Templates completos**: Plantillas para todos los tipos de componentes en ambas arquitecturas
 
+## Releases Anteriores
+
 ### 🔧 Cambiado
-- Versión del CLI actualizada a 0.4.0
+
+Este es el primer release estable de producción. Las versiones de desarrollo (v0.x.x) fueron iteraciones internas que culminaron en esta versión v1.0.0.- Versión del CLI actualizada a 0.4.0
+
 - Estructura interna mejorada con `internal/generator/`
 
+---
+
 ### 📚 Documentación
-- Documentación completa del comando generate
+
+[1.0.0]: https://github.com/geomark27/loom-go/releases/tag/v1.0.0- Documentación completa del comando generate
+
 - Ejemplos de uso para cada subcomando
 - Guía de próximos pasos después de generar componentes
 
