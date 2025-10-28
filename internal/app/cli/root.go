@@ -12,7 +12,7 @@ de proyectos en Go siguiendo las mejores prácticas de la comunidad.
 
 Loom no es un framework en tiempo de ejecución, sino un generador 
 de código y un orquestador de la arquitectura del proyecto.`,
-	Version: "1.0.0",
+	Version: "1.0.1",
 }
 
 // Execute ejecuta el comando raíz
