@@ -2,7 +2,7 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.23%2B-00ADD8?style=flat&logo=go)](https://golang.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.1-green.svg)](https://github.com/geomark27/loom-go/releases)
+[![Version](https://img.shields.io/badge/version-1.0.3-green.svg)](https://github.com/geomark27/loom-go/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/geomark27/loom-go)](https://goreportcard.com/report/github.com/geomark27/loom-go)
 
 > **Loom** no es un framework, es un **tejedor de código**. Genera proyectos Go profesionales en segundos y te da las herramientas para extenderlos sin límites.
