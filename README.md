@@ -590,7 +590,7 @@ Actualizar helpers:- `loom add docker` - Dockerfiles y docker-compose
 
 ```bash- `loom add ci github-actions` - Configurar CI/CD
 
-go get -u github.com/geomark27/loom-go/pkg/helpers
+go get -u github.com/geomark27/loom-go
 
 ```## 🤝 Contribuir
 
