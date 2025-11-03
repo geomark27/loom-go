@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/geomark27/loom-go/internal/generator"
+	"github.com/geomark27/loom-go/internal/version"
 	"github.com/spf13/cobra"
 )
 
@@ -71,6 +72,7 @@ func runNewCommand(cmd *cobra.Command, args []string) error {
 		UseHelpers:   !standalone, // UseHelpers is true by default, false if --standalone is active
 		IsModular:    modular,
 		Architecture: architecture,
+		LoomVersion:  version.Current.String(), // Inject current Loom version dynamically
 	}
 
 	// Generate the project

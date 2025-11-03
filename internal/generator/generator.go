@@ -16,6 +16,7 @@ type ProjectConfig struct {
 	UseHelpers   bool   // If true, includes Loom helpers in the project
 	IsModular    bool   // If true, uses modular architecture instead of layered
 	Architecture string // "layered" or "modular"
+	LoomVersion  string // Loom version to use in go.mod (injected automatically)
 }
 
 // Generator is responsible for generating projects
