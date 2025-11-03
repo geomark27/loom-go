@@ -6,14 +6,14 @@ import (
 
 var generateCmd = &cobra.Command{
 	Use:   "generate",
-	Short: "Genera componentes en un proyecto existente",
-	Long: `Genera módulos, handlers, services, models y otros componentes
-en un proyecto Loom existente.
+	Short: "Generate components in an existing project",
+	Long: `Generate modules, handlers, services, models and other components
+in an existing Loom project.
 
-El comando detectará automáticamente si tu proyecto usa arquitectura
-Layered o Modular y generará el código apropiado.
+The command will automatically detect if your project uses Layered
+or Modular architecture and generate the appropriate code.
 
-Ejemplos:
+Examples:
   loom generate module products
   loom generate handler orders
   loom generate service email
@@ -25,7 +25,7 @@ Ejemplos:
 func init() {
 	rootCmd.AddCommand(generateCmd)
 
-	// Flags globales para todos los subcomandos de generate
-	generateCmd.PersistentFlags().Bool("force", false, "Sobrescribir archivos existentes")
-	generateCmd.PersistentFlags().Bool("dry-run", false, "Mostrar qué se generaría sin crear archivos")
+	// Global flags for all generate subcommands
+	generateCmd.PersistentFlags().Bool("force", false, "Overwrite existing files")
+	generateCmd.PersistentFlags().Bool("dry-run", false, "Show what would be generated without creating files")
 }

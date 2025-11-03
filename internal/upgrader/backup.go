@@ -7,36 +7,36 @@ import (
 	"time"
 )
 
-// BackupManager gestiona los respaldos del proyecto
+// BackupManager manages project backups
 type BackupManager struct {
 	BackupDir string
 }
 
-// NewBackupManager crea un nuevo gestor de respaldos
+// NewBackupManager creates a new backup manager
 func NewBackupManager() *BackupManager {
 	return &BackupManager{
 		BackupDir: ".loom-backups",
 	}
 }
 
-// CreateBackup crea un respaldo completo del proyecto
+// CreateBackup creates a complete project backup
 func (bm *BackupManager) CreateBackup() (string, error) {
-	// Crear directorio de backups si no existe
+	// Create backups directory if it doesn't exist
 	if err := os.MkdirAll(bm.BackupDir, 0755); err != nil {
-		return "", fmt.Errorf("error al crear directorio de backup: %w", err)
+		return "", fmt.Errorf("error creating backup directory: %w", err)
 	}
 
-	// Nombre del backup con timestamp
+	// Backup name with timestamp
 	timestamp := time.Now().Format("20060102-150405")
 	backupName := fmt.Sprintf("backup-%s", timestamp)
 	backupPath := filepath.Join(bm.BackupDir, backupName)
 
-	// Crear directorio del backup
+	// Create backup directory
 	if err := os.MkdirAll(backupPath, 0755); err != nil {
-		return "", fmt.Errorf("error al crear directorio de backup: %w", err)
+		return "", fmt.Errorf("error creating backup directory: %w", err)
 	}
 
-	// Copiar archivos importantes
+	// Copy important files
 	filesToBackup := []string{
 		"go.mod",
 		"go.sum",
@@ -50,7 +50,7 @@ func (bm *BackupManager) CreateBackup() (string, error) {
 		if _, err := os.Stat(file); err == nil {
 			destPath := filepath.Join(backupPath, file)
 			if err := copyPath(file, destPath); err != nil {
-				return "", fmt.Errorf("error al copiar %s: %w", file, err)
+				return "", fmt.Errorf("error copying %s: %w", file, err)
 			}
 		}
 	}
@@ -58,32 +58,32 @@ func (bm *BackupManager) CreateBackup() (string, error) {
 	return backupPath, nil
 }
 
-// RestoreBackup restaura un backup
+// RestoreBackup restores a backup
 func (bm *BackupManager) RestoreBackup(backupPath string) error {
 	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
-		return fmt.Errorf("backup no encontrado: %s", backupPath)
+		return fmt.Errorf("backup not found: %s", backupPath)
 	}
 
-	// Listar archivos en el backup
+	// List files in the backup
 	entries, err := os.ReadDir(backupPath)
 	if err != nil {
-		return fmt.Errorf("error al leer backup: %w", err)
+		return fmt.Errorf("error reading backup: %w", err)
 	}
 
-	// Restaurar cada archivo
+	// Restore each file
 	for _, entry := range entries {
 		src := filepath.Join(backupPath, entry.Name())
 		dest := entry.Name()
 
 		if err := copyPath(src, dest); err != nil {
-			return fmt.Errorf("error al restaurar %s: %w", entry.Name(), err)
+			return fmt.Errorf("error restoring %s: %w", entry.Name(), err)
 		}
 	}
 
 	return nil
 }
 
-// ListBackups lista los backups disponibles
+// ListBackups lists available backups
 func (bm *BackupManager) ListBackups() ([]string, error) {
 	if _, err := os.Stat(bm.BackupDir); os.IsNotExist(err) {
 		return []string{}, nil
@@ -104,7 +104,7 @@ func (bm *BackupManager) ListBackups() ([]string, error) {
 	return backups, nil
 }
 
-// copyPath copia un archivo o directorio recursivamente
+// copyPath copies a file or directory recursively
 func copyPath(src, dst string) error {
 	info, err := os.Stat(src)
 	if err != nil {
@@ -117,38 +117,38 @@ func copyPath(src, dst string) error {
 	return copyFile(src, dst)
 }
 
-// copyFile copia un archivo
+// copyFile copies a file
 func copyFile(src, dst string) error {
-	// Crear directorio destino si no existe
+	// Create destination directory if it doesn't exist
 	dstDir := filepath.Dir(dst)
 	if err := os.MkdirAll(dstDir, 0755); err != nil {
 		return err
 	}
 
-	// Leer archivo fuente
+	// Read source file
 	data, err := os.ReadFile(src)
 	if err != nil {
 		return err
 	}
 
-	// Escribir archivo destino
+	// Write destination file
 	return os.WriteFile(dst, data, 0644)
 }
 
-// copyDir copia un directorio recursivamente
+// copyDir copies a directory recursively
 func copyDir(src, dst string) error {
-	// Crear directorio destino
+	// Create destination directory
 	if err := os.MkdirAll(dst, 0755); err != nil {
 		return err
 	}
 
-	// Listar contenido
+	// List content
 	entries, err := os.ReadDir(src)
 	if err != nil {
 		return err
 	}
 
-	// Copiar cada entrada
+	// Copy each entry
 	for _, entry := range entries {
 		srcPath := filepath.Join(src, entry.Name())
 		dstPath := filepath.Join(dst, entry.Name())

@@ -7,48 +7,48 @@ import (
 	"strings"
 )
 
-// ProjectInfo contiene información sobre el proyecto detectado
+// ProjectInfo contains information about the detected project
 type ProjectInfo struct {
 	Name         string
-	Architecture string // "layered" o "modular"
+	Architecture string // "layered" or "modular"
 	HasHelpers   bool
 	RootPath     string
 	ModuleName   string
 }
 
-// DetectProject detecta el tipo de proyecto Loom en el directorio actual
+// DetectProject detects the type of Loom project in the current directory
 func DetectProject() (*ProjectInfo, error) {
-	// Buscar go.mod para confirmar que es un proyecto Go
+	// Look for go.mod to confirm it's a Go project
 	if _, err := os.Stat("go.mod"); os.IsNotExist(err) {
-		return nil, fmt.Errorf("no se encontró go.mod. ¿Estás en un proyecto Go?")
+		return nil, fmt.Errorf("go.mod not found. Are you in a Go project?")
 	}
 
 	info := &ProjectInfo{
 		RootPath: ".",
 	}
 
-	// Detectar arquitectura
+	// Detect architecture
 	if _, err := os.Stat("internal/modules"); err == nil {
 		info.Architecture = "modular"
 	} else if _, err := os.Stat("internal/app"); err == nil {
 		info.Architecture = "layered"
 	} else {
-		return nil, fmt.Errorf("no se detectó un proyecto Loom válido (falta internal/modules o internal/app)")
+		return nil, fmt.Errorf("no valid Loom project detected (missing internal/modules or internal/app)")
 	}
 
-	// Detectar si tiene helpers
+	// Detect if it has helpers
 	info.HasHelpers = hasHelpersImport()
 
-	// Leer nombre del proyecto desde go.mod
+	// Read project name from go.mod
 	info.Name = getProjectNameFromGoMod()
 	info.ModuleName = getModuleNameFromGoMod()
 
 	return info, nil
 }
 
-// hasHelpersImport busca si el proyecto usa los helpers de Loom
+// hasHelpersImport checks if the project uses Loom helpers
 func hasHelpersImport() bool {
-	// Buscar import "github.com/geomark27/loom-go/pkg/helpers" en archivos .go
+	// Search for import "github.com/geomark27/loom-go/pkg/helpers" in .go files
 	files := []string{
 		"internal/app/handlers/user_handler.go",
 		"internal/modules/users/handler.go",
@@ -65,14 +65,14 @@ func hasHelpersImport() bool {
 	return false
 }
 
-// getProjectNameFromGoMod extrae el nombre del proyecto desde go.mod
+// getProjectNameFromGoMod extracts the project name from go.mod
 func getProjectNameFromGoMod() string {
 	data, err := os.ReadFile("go.mod")
 	if err != nil {
 		return "unknown"
 	}
 
-	// Parsear primera línea: "module <nombre>"
+	// Parse first line: "module <name>"
 	lines := bytes.Split(data, []byte("\n"))
 	if len(lines) > 0 {
 		line := string(lines[0])
@@ -86,14 +86,14 @@ func getProjectNameFromGoMod() string {
 	return "unknown"
 }
 
-// getModuleNameFromGoMod extrae el nombre completo del módulo desde go.mod
+// getModuleNameFromGoMod extracts the full module name from go.mod
 func getModuleNameFromGoMod() string {
 	data, err := os.ReadFile("go.mod")
 	if err != nil {
 		return ""
 	}
 
-	// Parsear primera línea: "module <nombre>"
+	// Parse first line: "module <name>"
 	lines := bytes.Split(data, []byte("\n"))
 	if len(lines) > 0 {
 		line := string(lines[0])
@@ -105,18 +105,18 @@ func getModuleNameFromGoMod() string {
 	return ""
 }
 
-// ValidateComponentName valida que el nombre de un componente sea válido
+// ValidateComponentName validates that a component name is valid
 func ValidateComponentName(name string) error {
 	if name == "" {
-		return fmt.Errorf("el nombre no puede estar vacío")
+		return fmt.Errorf("name cannot be empty")
 	}
 
 	if strings.Contains(name, " ") {
-		return fmt.Errorf("el nombre no puede contener espacios")
+		return fmt.Errorf("name cannot contain spaces")
 	}
 
 	if strings.ContainsAny(name, `<>:"/\|?*`) {
-		return fmt.Errorf("el nombre contiene caracteres no válidos")
+		return fmt.Errorf("name contains invalid characters")
 	}
 
 	return nil

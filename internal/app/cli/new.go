@@ -11,16 +11,16 @@ import (
 )
 
 var newCmd = &cobra.Command{
-	Use:   "new [nombre-del-proyecto]",
-	Short: "Crea un nuevo proyecto Go con Loom",
-	Long: `Crea un nuevo proyecto Go siguiendo las mejores prácticas y la estructura 
-estándar de golang-standard/project-layout.
+	Use:   "new [project-name]",
+	Short: "Create a new Go project with Loom",
+	Long: `Create a new Go project following best practices and the
+golang-standard/project-layout structure.
 
-El proyecto generado incluirá:
-- Estructura de directorios idiomática
-- go.mod configurado
-- Servidor web básico con net/http
-- README.md con instrucciones`,
+The generated project will include:
+- Idiomatic directory structure
+- Configured go.mod
+- Basic web server with net/http
+- README.md with instructions`,
 	Args: cobra.ExactArgs(1),
 	RunE: runNewCommand,
 }
@@ -34,81 +34,81 @@ var (
 func runNewCommand(cmd *cobra.Command, args []string) error {
 	projectName := args[0]
 
-	// Validar nombre del proyecto
+	// Validate project name
 	if err := validateProjectName(projectName); err != nil {
-		return fmt.Errorf("nombre de proyecto inválido: %w", err)
+		return fmt.Errorf("invalid project name: %w", err)
 	}
 
-	// Obtener el directorio actual como directorio base
+	// Get current directory as base directory
 	baseDir := "."
 	projectPath := filepath.Join(baseDir, projectName)
 
-	// Determinar el nombre del módulo
+	// Determine module name
 	module := moduleName
 	if module == "" {
-		// Intentar detectar el usuario de GitHub desde git config
+		// Try to detect GitHub user from git config
 		githubUser := detectGitHubUser()
 		if githubUser != "" {
 			module = fmt.Sprintf("github.com/%s/%s", githubUser, projectName)
 		} else {
-			// Fallback: usar el nombre del proyecto directamente
+			// Fallback: use project name directly
 			module = projectName
 		}
 	}
 
-	// Determinar arquitectura
+	// Determine architecture
 	architecture := "layered"
 	if modular {
 		architecture = "modular"
 	}
 
-	// Crear la configuración del proyecto
+	// Create project configuration
 	config := &generator.ProjectConfig{
 		Name:         projectName,
 		Path:         projectPath,
 		ModuleName:   module,
-		Description:  fmt.Sprintf("Proyecto %s generado con Loom", projectName),
-		UseHelpers:   !standalone, // UseHelpers es true por defecto, false si --standalone está activo
+		Description:  fmt.Sprintf("%s project generated with Loom", projectName),
+		UseHelpers:   !standalone, // UseHelpers is true by default, false if --standalone is active
 		IsModular:    modular,
 		Architecture: architecture,
 	}
 
-	// Generar el proyecto
+	// Generate the project
 	gen := generator.New()
 	if err := gen.GenerateProject(config); err != nil {
-		return fmt.Errorf("error generando proyecto: %w", err)
+		return fmt.Errorf("error generating project: %w", err)
 	}
 
-	// Mensaje de éxito con información de arquitectura
-	fmt.Printf("✅ Proyecto '%s' creado exitosamente en %s\n", projectName, projectPath)
+	// Success message with architecture information
+	fmt.Printf("✅ Project '%s' created successfully in %s\n", projectName, projectPath)
 
-	// Información de arquitectura
+	// Architecture information
 	if config.IsModular {
-		fmt.Printf("\n🏗️  Arquitectura: Modular (por dominios)\n")
-		fmt.Printf("   → Ideal para: Proyectos grandes (20+ endpoints), equipos, microservicios\n")
-		fmt.Printf("   → Módulos: users (ejemplo generado)\n")
+		fmt.Printf("\n🏗️  Architecture: Modular (domain-based)\n")
+		fmt.Printf("   → Ideal for: Large projects (20+ endpoints), teams, microservices\n")
+		fmt.Printf("   → Modules: users (example generated)\n")
 		fmt.Printf("\n💡 Tips:\n")
-		fmt.Printf("   • Usa 'loom generate module <name>' para agregar módulos\n")
-		fmt.Printf("   • Mantén módulos independientes (usa Event Bus para comunicación)\n")
-		fmt.Printf("   • Cada módulo tiene su propio ports.go con interfaces\n")
+		fmt.Printf("   • Use 'loom generate module <name>' to add modules\n")
+		fmt.Printf("   • Keep modules independent (use Event Bus for communication)\n")
+		fmt.Printf("   • Each module has its own ports.go with interfaces\n")
 	} else {
-		fmt.Printf("\n🏗️  Arquitectura: Layered (por capas)\n")
-		fmt.Printf("   → Ideal para: APIs pequeñas (< 20 endpoints), MVPs, prototipos\n")
-		fmt.Printf("   → Estructura: handlers → services → repositories\n")
+		fmt.Printf("\n🏗️  Architecture: Layered (layers-based)\n")
+		fmt.Printf("   → Ideal for: Small APIs (< 20 endpoints), MVPs, prototypes\n")
+		fmt.Printf("   → Structure: handlers → services → repositories\n")
 		fmt.Printf("\n💡 Tips:\n")
-		fmt.Printf("   • Empieza simple, escala cuando lo necesites\n")
-		fmt.Printf("   • Usa 'loom generate module <name>' para agregar recursos\n")
-		fmt.Printf("   • Considera --modular si tienes 20+ endpoints\n")
+		fmt.Printf("   • Start simple, scale when needed\n")
+		fmt.Printf("   • Use 'loom generate module <name>' to add resources\n")
+		fmt.Printf("   • Consider --modular if you have 20+ endpoints\n")
 	}
 
-	// Información de helpers
+	// Helpers information
 	if config.UseHelpers {
-		fmt.Printf("\n📦 Helpers: Incluidos (validación, respuestas, logging)\n")
+		fmt.Printf("\n📦 Helpers: Included (validation, responses, logging)\n")
 	} else {
-		fmt.Printf("\n🔧 Modo: Standalone (sin dependencias externas)\n")
+		fmt.Printf("\n🔧 Mode: Standalone (no external dependencies)\n")
 	}
 
-	fmt.Printf("\nPróximos pasos:\n")
+	fmt.Printf("\nNext steps:\n")
 	fmt.Printf("  cd %s\n", projectName)
 	fmt.Printf("  go mod tidy\n")
 	fmt.Printf("  go run cmd/%s/main.go\n", projectName)
@@ -118,24 +118,24 @@ func runNewCommand(cmd *cobra.Command, args []string) error {
 
 func validateProjectName(name string) error {
 	if name == "" {
-		return fmt.Errorf("el nombre no puede estar vacío")
+		return fmt.Errorf("name cannot be empty")
 	}
 
 	if strings.Contains(name, " ") {
-		return fmt.Errorf("el nombre no puede contener espacios")
+		return fmt.Errorf("name cannot contain spaces")
 	}
 
-	// Verificar caracteres válidos para nombres de directorios
+	// Check valid characters for directory names
 	if strings.ContainsAny(name, `<>:"/\|?*`) {
-		return fmt.Errorf("el nombre contiene caracteres no válidos")
+		return fmt.Errorf("name contains invalid characters")
 	}
 
 	return nil
 }
 
-// detectGitHubUser intenta detectar el usuario de GitHub desde la configuración de git
+// detectGitHubUser tries to detect the GitHub username from git config
 func detectGitHubUser() string {
-	// Intentar obtener github.user
+	// Try to get github.user
 	cmd := exec.Command("git", "config", "github.user")
 	if output, err := cmd.Output(); err == nil {
 		user := strings.TrimSpace(string(output))
@@ -144,20 +144,20 @@ func detectGitHubUser() string {
 		}
 	}
 
-	// Fallback: intentar extraer de la URL del remote origin
+	// Fallback: try to extract from remote origin URL
 	cmd = exec.Command("git", "config", "remote.origin.url")
 	if output, err := cmd.Output(); err == nil {
 		url := strings.TrimSpace(string(output))
-		// Parsear URLs como: git@github.com:username/repo.git o https://github.com/username/repo.git
+		// Parse URLs like: git@github.com:username/repo.git or https://github.com/username/repo.git
 		if strings.Contains(url, "github.com") {
-			// Para SSH: git@github.com:username/repo.git
+			// For SSH: git@github.com:username/repo.git
 			if strings.HasPrefix(url, "git@github.com:") {
 				parts := strings.Split(strings.TrimPrefix(url, "git@github.com:"), "/")
 				if len(parts) > 0 {
 					return parts[0]
 				}
 			}
-			// Para HTTPS: https://github.com/username/repo.git
+			// For HTTPS: https://github.com/username/repo.git
 			if strings.Contains(url, "github.com/") {
 				parts := strings.Split(url, "github.com/")
 				if len(parts) > 1 {
@@ -176,8 +176,8 @@ func detectGitHubUser() string {
 func init() {
 	rootCmd.AddCommand(newCmd)
 
-	// Flags específicos del comando new
-	newCmd.Flags().StringVarP(&moduleName, "module", "m", "", "Nombre del módulo Go (detecta automáticamente desde git config o usa el nombre del proyecto)")
-	newCmd.Flags().BoolVar(&standalone, "standalone", false, "Generar proyecto sin helpers de Loom (código 100% independiente)")
-	newCmd.Flags().BoolVar(&modular, "modular", false, "Generar arquitectura modular por dominio (recomendado para proyectos grandes con 20+ endpoints)")
+	// Flags specific to the new command
+	newCmd.Flags().StringVarP(&moduleName, "module", "m", "", "Go module name (auto-detects from git config or uses project name)")
+	newCmd.Flags().BoolVar(&standalone, "standalone", false, "Generate project without Loom helpers (100% independent code)")
+	newCmd.Flags().BoolVar(&modular, "modular", false, "Generate modular architecture by domain (recommended for large projects with 20+ endpoints)")
 }

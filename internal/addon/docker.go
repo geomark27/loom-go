@@ -5,13 +5,13 @@ import (
 	"path/filepath"
 )
 
-// DockerAddon gestiona la configuración de Docker
+// DockerAddon manages Docker configuration
 type DockerAddon struct {
 	projectRoot  string
 	architecture string
 }
 
-// NewDockerAddon crea un nuevo addon de Docker
+// NewDockerAddon creates a new Docker addon
 func NewDockerAddon(projectRoot, architecture string) *DockerAddon {
 	return &DockerAddon{
 		projectRoot:  projectRoot,
@@ -24,7 +24,7 @@ func (d *DockerAddon) Name() string {
 }
 
 func (d *DockerAddon) Description() string {
-	return "Containerización con Docker y Docker Compose"
+	return "Containerization with Docker and Docker Compose"
 }
 
 func (d *DockerAddon) IsInstalled() (bool, error) {
@@ -33,38 +33,38 @@ func (d *DockerAddon) IsInstalled() (bool, error) {
 }
 
 func (d *DockerAddon) CanInstall() (bool, string, error) {
-	// Docker siempre se puede instalar
+	// Docker can always be installed
 	return true, "", nil
 }
 
 func (d *DockerAddon) GetConflicts() []string {
-	return []string{} // Docker no tiene conflictos
+	return []string{} // Docker has no conflicts
 }
 
 func (d *DockerAddon) Install(force bool) error {
-	// 1. Crear Dockerfile
+	// 1. Create Dockerfile
 	if err := d.createDockerfile(); err != nil {
-		return fmt.Errorf("error al crear Dockerfile: %w", err)
+		return fmt.Errorf("error creating Dockerfile: %w", err)
 	}
 
-	// 2. Crear .dockerignore
+	// 2. Create .dockerignore
 	if err := d.createDockerignore(); err != nil {
-		return fmt.Errorf("error al crear .dockerignore: %w", err)
+		return fmt.Errorf("error creating .dockerignore: %w", err)
 	}
 
-	// 3. Crear docker-compose.yml
+	// 3. Create docker-compose.yml
 	if err := d.createDockerCompose(); err != nil {
-		return fmt.Errorf("error al crear docker-compose.yml: %w", err)
+		return fmt.Errorf("error creating docker-compose.yml: %w", err)
 	}
 
-	// 4. Actualizar Makefile si existe
+	// 4. Update Makefile if it exists
 	if FileExists("Makefile") {
 		if err := d.updateMakefile(); err != nil {
-			return fmt.Errorf("error al actualizar Makefile: %w", err)
+			return fmt.Errorf("error updating Makefile: %w", err)
 		}
 	}
 
-	fmt.Println("\n📝 Archivos Docker creados:")
+	fmt.Println("\n📝 Docker files created:")
 	fmt.Println("   ✨ Dockerfile")
 	fmt.Println("   ✨ .dockerignore")
 	fmt.Println("   ✨ docker-compose.yml")
@@ -73,26 +73,26 @@ func (d *DockerAddon) Install(force bool) error {
 }
 
 func (d *DockerAddon) createDockerfile() error {
-	fmt.Println("   📝 Creando Dockerfile...")
+	fmt.Println("   📝 Creating Dockerfile...")
 
 	content := `# Build stage
 FROM golang:1.23-alpine AS builder
 
-# Instalar dependencias de build
+# Install build dependencies
 RUN apk add --no-cache git
 
 WORKDIR /app
 
-# Copiar go.mod y go.sum
+# Copy go.mod and go.sum
 COPY go.mod go.sum ./
 
-# Descargar dependencias
+# Download dependencies
 RUN go mod download
 
-# Copiar código fuente
+# Copy source code
 COPY . .
 
-# Build de la aplicación
+# Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/app
 
 # Runtime stage
@@ -102,14 +102,14 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-# Copiar el binario desde el builder
+# Copy the binary from the builder
 COPY --from=builder /app/main .
 COPY --from=builder /app/.env.example .env
 
-# Exponer el puerto
+# Expose the port
 EXPOSE 8080
 
-# Comando para ejecutar
+# Command to execute
 CMD ["./main"]
 `
 
@@ -117,26 +117,26 @@ CMD ["./main"]
 }
 
 func (d *DockerAddon) createDockerignore() error {
-	fmt.Println("   📝 Creando .dockerignore...")
+	fmt.Println("   📝 Creating .dockerignore...")
 
 	content := `# Git
 .git
 .gitignore
 
-# Archivos de desarrollo
+# Development files
 .env
 *.log
 *.exe
 *.test
 *.out
 
-# Directorios
+# Directories
 tmp/
 vendor/
 .vscode/
 .idea/
 
-# Documentación
+# Documentation
 *.md
 docs/
 
@@ -157,9 +157,9 @@ docker-compose*.yml
 }
 
 func (d *DockerAddon) createDockerCompose() error {
-	fmt.Println("   📝 Creando docker-compose.yml...")
+	fmt.Println("   📝 Creating docker-compose.yml...")
 
-	// Detectar si tiene base de datos configurada
+	// Detect if a database is configured
 	detector := NewProjectDetector(d.projectRoot)
 	databases := detector.DetectDatabase()
 
@@ -174,7 +174,7 @@ services:
       - PORT=8080
 `
 
-	// Si tiene PostgreSQL, añadirlo
+	// If it has PostgreSQL, add it
 	hasPostgres := false
 	for _, db := range databases {
 		if db == "postgres" {
@@ -233,14 +233,14 @@ networks:
 }
 
 func (d *DockerAddon) updateMakefile() error {
-	fmt.Println("   📝 Actualizando Makefile...")
+	fmt.Println("   📝 Updating Makefile...")
 
 	content, err := ReadFile("Makefile")
 	if err != nil {
 		return err
 	}
 
-	// Verificar si ya tiene comandos Docker
+	// Check if it already has Docker commands
 	if content != "" && content[len(content)-1:] != "\n" {
 		content += "\n"
 	}

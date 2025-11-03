@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-// RouterAddon gestiona la instalación de routers HTTP
+// RouterAddon manages HTTP router installation
 type RouterAddon struct {
 	projectRoot  string
 	architecture string
 	routerType   string // "gin", "chi", "echo"
 }
 
-// NewRouterAddon crea un nuevo addon de router
+// NewRouterAddon creates a new router addon
 func NewRouterAddon(projectRoot, architecture, routerType string) *RouterAddon {
 	return &RouterAddon{
 		projectRoot:  projectRoot,
@@ -28,9 +28,9 @@ func (r *RouterAddon) Name() string {
 
 func (r *RouterAddon) Description() string {
 	descriptions := map[string]string{
-		"gin":  "Framework web rápido con excelente performance",
-		"chi":  "Router ligero y composable compatible con net/http",
-		"echo": "Framework minimalista de alto rendimiento",
+		"gin":  "Fast web framework with excellent performance",
+		"chi":  "Lightweight and composable router compatible with net/http",
+		"echo": "Minimalist high-performance framework",
 	}
 	return descriptions[r.routerType]
 }
@@ -42,15 +42,15 @@ func (r *RouterAddon) IsInstalled() (bool, error) {
 }
 
 func (r *RouterAddon) CanInstall() (bool, string, error) {
-	// Los routers siempre se pueden instalar (reemplazan el existente)
+	// Routers can always be installed (they replace the existing one)
 	return true, "", nil
 }
 
 func (r *RouterAddon) GetConflicts() []string {
-	// Todos los routers son conflictivos entre sí
+	// All routers conflict with each other
 	conflicts := []string{"gin", "chi", "echo", "gorilla-mux"}
 
-	// Remover el router actual de los conflictos
+	// Remove the current router from conflicts
 	filtered := []string{}
 	for _, c := range conflicts {
 		if c != r.routerType {
@@ -62,19 +62,19 @@ func (r *RouterAddon) GetConflicts() []string {
 }
 
 func (r *RouterAddon) Install(force bool) error {
-	// 1. Actualizar go.mod con la dependencia
+	// 1. Update go.mod with the dependency
 	if err := r.addDependency(); err != nil {
-		return fmt.Errorf("error al añadir dependencia: %w", err)
+		return fmt.Errorf("error adding dependency: %w", err)
 	}
 
-	// 2. Actualizar archivos de servidor
+	// 2. Update server files
 	if err := r.updateServerFiles(); err != nil {
-		return fmt.Errorf("error al actualizar servidor: %w", err)
+		return fmt.Errorf("error updating server: %w", err)
 	}
 
-	// 3. Actualizar handlers (si es necesario)
-	fmt.Println("⚠️  Nota: Los handlers existentes necesitarán ser actualizados manualmente")
-	fmt.Println("   para usar la nueva API del router")
+	// 3. Update handlers (if necessary)
+	fmt.Println("⚠️  Note: Existing handlers will need to be manually updated")
+	fmt.Println("   to use the new router API")
 
 	return nil
 }
@@ -88,19 +88,19 @@ func (r *RouterAddon) addDependency() error {
 
 	parts := strings.Split(modules[r.routerType], " ")
 	if len(parts) != 2 {
-		return fmt.Errorf("formato de módulo inválido")
+		return fmt.Errorf("invalid module format")
 	}
 
-	fmt.Printf("   📦 Añadiendo dependencia: %s\n", modules[r.routerType])
+	fmt.Printf("   📦 Adding dependency: %s\n", modules[r.routerType])
 	return UpdateGoMod(parts[0], parts[1])
 }
 
 func (r *RouterAddon) updateServerFiles() error {
 	serverPath := r.getServerPath()
 
-	fmt.Printf("   📝 Actualizando %s\n", serverPath)
+	fmt.Printf("   📝 Updating %s\n", serverPath)
 
-	// Generar nuevo contenido según el router
+	// Generate new content according to the router
 	newContent := r.generateServerContent()
 
 	return WriteFile(serverPath, newContent)
@@ -139,25 +139,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Server representa el servidor HTTP
+// Server represents the HTTP server
 type Server struct {
 	config *Config
 	router *gin.Engine
 	server *http.Server
 }
 
-// Config contiene la configuración del servidor
+// Config contains the server configuration
 type Config struct {
 	Port string
 }
 
-// NewServer crea una nueva instancia del servidor
+// NewServer creates a new server instance
 func NewServer(config *Config) *Server {
-	// Modo release en producción
+	// Release mode in production
 	// gin.SetMode(gin.ReleaseMode)
-	
+
 	router := gin.Default()
-	
+
 	return &Server{
 		config: config,
 		router: router,
@@ -168,19 +168,19 @@ func NewServer(config *Config) *Server {
 	}
 }
 
-// Start inicia el servidor
+// Start starts the server
 func (s *Server) Start() error {
-	log.Printf("🚀 Servidor iniciado en http://localhost:%s", s.config.Port)
+	log.Printf("🚀 Server started at http://localhost:%s", s.config.Port)
 	return s.server.ListenAndServe()
 }
 
-// Shutdown detiene el servidor gracefully
+// Shutdown stops the server gracefully
 func (s *Server) Shutdown(ctx context.Context) error {
-	log.Println("Deteniendo servidor...")
+	log.Println("Stopping server...")
 	return s.server.Shutdown(ctx)
 }
 
-// Router retorna el router para configurar rutas
+// Router returns the router to configure routes
 func (s *Server) Router() *gin.Engine {
 	return s.router
 }
@@ -201,27 +201,27 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-// Server representa el servidor HTTP
+// Server represents the HTTP server
 type Server struct {
 	config *Config
 	router *chi.Mux
 	server *http.Server
 }
 
-// Config contiene la configuración del servidor
+// Config contains the server configuration
 type Config struct {
 	Port string
 }
 
-// NewServer crea una nueva instancia del servidor
+// NewServer creates a new server instance
 func NewServer(config *Config) *Server {
 	router := chi.NewRouter()
-	
-	// Middleware básico
+
+	// Basic middleware
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.RequestID)
-	
+
 	return &Server{
 		config: config,
 		router: router,
@@ -232,19 +232,19 @@ func NewServer(config *Config) *Server {
 	}
 }
 
-// Start inicia el servidor
+// Start starts the server
 func (s *Server) Start() error {
-	log.Printf("🚀 Servidor iniciado en http://localhost:%s", s.config.Port)
+	log.Printf("🚀 Server started at http://localhost:%s", s.config.Port)
 	return s.server.ListenAndServe()
 }
 
-// Shutdown detiene el servidor gracefully
+// Shutdown stops the server gracefully
 func (s *Server) Shutdown(ctx context.Context) error {
-	log.Println("Deteniendo servidor...")
+	log.Println("Stopping server...")
 	return s.server.Shutdown(ctx)
 }
 
-// Router retorna el router para configurar rutas
+// Router returns the router to configure routes
 func (s *Server) Router() *chi.Mux {
 	return s.router
 }
@@ -265,47 +265,47 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// Server representa el servidor HTTP
+// Server represents the HTTP server
 type Server struct {
 	config *Config
 	echo   *echo.Echo
 }
 
-// Config contiene la configuración del servidor
+// Config contains the server configuration
 type Config struct {
 	Port string
 }
 
-// NewServer crea una nueva instancia del servidor
+// NewServer creates a new server instance
 func NewServer(config *Config) *Server {
 	e := echo.New()
-	
-	// Middleware básico
+
+	// Basic middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	
-	// Ocultar banner
+
+	// Hide banner
 	e.HideBanner = true
-	
+
 	return &Server{
 		config: config,
 		echo:   e,
 	}
 }
 
-// Start inicia el servidor
+// Start starts the server
 func (s *Server) Start() error {
-	log.Printf("🚀 Servidor iniciado en http://localhost:%s", s.config.Port)
+	log.Printf("🚀 Server started at http://localhost:%s", s.config.Port)
 	return s.echo.Start(":" + s.config.Port)
 }
 
-// Shutdown detiene el servidor gracefully
+// Shutdown stops the server gracefully
 func (s *Server) Shutdown(ctx context.Context) error {
-	log.Println("Deteniendo servidor...")
+	log.Println("Stopping server...")
 	return s.echo.Shutdown(ctx)
 }
 
-// Echo retorna la instancia de Echo para configurar rutas
+// Echo returns the Echo instance to configure routes
 func (s *Server) Echo() *echo.Echo {
 	return s.echo
 }

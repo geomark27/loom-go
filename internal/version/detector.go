@@ -8,25 +8,25 @@ import (
 	"strings"
 )
 
-// DetectProjectVersion detecta la versión de Loom usada en el proyecto
+// DetectProjectVersion detects the Loom version used in the project
 func DetectProjectVersion() (Version, error) {
-	// Buscar en go.mod el comentario con la versión de Loom
+	// Search for the Loom version comment in go.mod
 	version, err := detectFromGoMod()
 	if err == nil {
 		return version, nil
 	}
 
-	// Buscar en .loom si existe
+	// Search in .loom if it exists
 	version, err = detectFromLoomFile()
 	if err == nil {
 		return version, nil
 	}
 
-	// Si no se encuentra, asumir versión más antigua
+	// If not found, assume oldest version
 	return Version{Major: 1, Minor: 0, Patch: 0}, nil
 }
 
-// detectFromGoMod busca la versión en comentarios de go.mod
+// detectFromGoMod searches for the version in go.mod comments
 func detectFromGoMod() (Version, error) {
 	file, err := os.Open("go.mod")
 	if err != nil {
@@ -44,10 +44,10 @@ func detectFromGoMod() (Version, error) {
 		}
 	}
 
-	return Version{}, fmt.Errorf("versión no encontrada en go.mod")
+	return Version{}, fmt.Errorf("version not found in go.mod")
 }
 
-// detectFromLoomFile lee el archivo .loom
+// detectFromLoomFile reads the .loom file
 func detectFromLoomFile() (Version, error) {
 	content, err := os.ReadFile(".loom")
 	if err != nil {
@@ -62,10 +62,10 @@ func detectFromLoomFile() (Version, error) {
 		}
 	}
 
-	return Version{}, fmt.Errorf("versión no encontrada en .loom")
+	return Version{}, fmt.Errorf("version not found in .loom")
 }
 
-// CreateLoomFile crea o actualiza el archivo .loom con la versión actual
+// CreateLoomFile creates or updates the .loom file with the current version
 func CreateLoomFile(version Version, architecture string) error {
 	content := fmt.Sprintf(`# Loom Project Configuration
 version=%s
@@ -76,27 +76,27 @@ created_with=loom-cli
 	return os.WriteFile(".loom", []byte(content), 0644)
 }
 
-// GetChangelogBetween retorna el changelog entre dos versiones
+// GetChangelogBetween returns the changelog between two versions
 func GetChangelogBetween(from, to Version) string {
-	// Si ambas versiones son 1.0.0 o superiores, no hay cambios internos
+	// If both versions are 1.0.0 or higher, there are no internal changes
 	if from.Major >= 1 && to.Major >= 1 {
-		return "✅ Proyecto actualizado. Ver CHANGELOG.md para detalles completos."
+		return "✅ Project updated. See CHANGELOG.md for complete details."
 	}
 
-	// Para proyectos legacy (v0.x.x), sugerir actualización a v1.0.0
+	// For legacy projects (v0.x.x), suggest upgrade to v1.0.0
 	if from.Major == 0 {
-		return `🎉 ¡Actualización importante disponible!
+		return `🎉 Important update available!
 
-📌 Versión 1.0.0 - Release Estable:
-  ✨ Comando 'loom generate' para crear componentes individuales
-  🎨 Comando 'loom add' para añadir tecnologías (routers, ORMs, databases)
-  ⬆️ Comando 'loom upgrade' con sistema de versionado
-  📦 pkg/helpers actualizado y mejorado
-  🏗️ Arquitectura dual (Layered + Modular)
-  📚 Documentación completa renovada
+📌 Version 1.0.0 - Stable Release:
+  ✨ 'loom generate' command to create individual components
+  🎨 'loom add' command to add technologies (routers, ORMs, databases)
+  ⬆️ 'loom upgrade' command with versioning system
+  📦 pkg/helpers updated and improved
+  🏗️ Dual architecture (Layered + Modular)
+  📚 Complete documentation renovated
   
-� Ver CHANGELOG.md para detalles completos`
+� See CHANGELOG.md for complete details`
 	}
 
-	return "No hay cambios registrados entre estas versiones."
+	return "No changes recorded between these versions."
 }

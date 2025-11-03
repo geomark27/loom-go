@@ -7,19 +7,19 @@ import (
 	"strings"
 )
 
-// ModuleGenerator genera módulos completos o componentes individuales
+// ModuleGenerator generates complete modules or individual components
 type ModuleGenerator struct {
 	project *ProjectInfo
 }
 
-// NewModuleGenerator crea una nueva instancia del generador de módulos
+// NewModuleGenerator creates a new instance of the module generator
 func NewModuleGenerator(project *ProjectInfo) *ModuleGenerator {
 	return &ModuleGenerator{
 		project: project,
 	}
 }
 
-// GenerateModule genera un módulo completo
+// GenerateModule generates a complete module
 func (g *ModuleGenerator) GenerateModule(name string, force bool, dryRun bool) ([]string, error) {
 	var files []string
 
@@ -32,14 +32,14 @@ func (g *ModuleGenerator) GenerateModule(name string, force bool, dryRun bool) (
 	return files, nil
 }
 
-// generateLayeredModule genera módulo en arquitectura por capas
+// generateLayeredModule generates module in layered architecture
 func (g *ModuleGenerator) generateLayeredModule(name string, force bool, dryRun bool) []string {
 	files := []string{}
 
 	nameLower := strings.ToLower(name)
 	nameTitle := strings.Title(nameLower)
 
-	// Definir archivos a crear
+	// Define files to create
 	filesToCreate := map[string]string{
 		fmt.Sprintf("internal/app/handlers/%s_handler.go", nameLower):        g.getHandlerTemplate(nameTitle, nameLower),
 		fmt.Sprintf("internal/app/services/%s_service.go", nameLower):        g.getServiceTemplate(nameTitle, nameLower),
@@ -48,7 +48,7 @@ func (g *ModuleGenerator) generateLayeredModule(name string, force bool, dryRun 
 		fmt.Sprintf("internal/app/dtos/%s_dto.go", nameLower):                g.getDTOTemplate(nameTitle, nameLower),
 	}
 
-	// Generar cada archivo
+	// Generate each file
 	for filePath, content := range filesToCreate {
 		if err := g.createFile(filePath, content, force, dryRun); err != nil {
 			fmt.Printf("⚠️  %s: %v\n", filePath, err)
@@ -60,7 +60,7 @@ func (g *ModuleGenerator) generateLayeredModule(name string, force bool, dryRun 
 	return files
 }
 
-// generateModularModule genera módulo en arquitectura modular
+// generateModularModule generates module in modular architecture
 func (g *ModuleGenerator) generateModularModule(name string, force bool, dryRun bool) []string {
 	files := []string{}
 
@@ -68,12 +68,12 @@ func (g *ModuleGenerator) generateModularModule(name string, force bool, dryRun 
 	nameTitle := strings.Title(nameLower)
 	moduleDir := filepath.Join("internal/modules", nameLower)
 
-	// Crear directorio del módulo
+	// Create module directory
 	if !dryRun {
 		os.MkdirAll(moduleDir, 0755)
 	}
 
-	// Definir archivos a crear
+	// Define files to create
 	filesToCreate := map[string]string{
 		filepath.Join(moduleDir, "handler.go"):    g.getModularHandlerTemplate(nameTitle, nameLower),
 		filepath.Join(moduleDir, "service.go"):    g.getModularServiceTemplate(nameTitle, nameLower),
@@ -85,7 +85,7 @@ func (g *ModuleGenerator) generateModularModule(name string, force bool, dryRun 
 		filepath.Join(moduleDir, "errors.go"):     g.getModularErrorsTemplate(nameTitle, nameLower),
 	}
 
-	// Generar cada archivo
+	// Generate each file
 	for filePath, content := range filesToCreate {
 		if err := g.createFile(filePath, content, force, dryRun); err != nil {
 			fmt.Printf("⚠️  %s: %v\n", filePath, err)
@@ -97,28 +97,28 @@ func (g *ModuleGenerator) generateModularModule(name string, force bool, dryRun 
 	return files
 }
 
-// createFile crea un archivo con el contenido dado
+// createFile creates a file with the given content
 func (g *ModuleGenerator) createFile(filePath, content string, force bool, dryRun bool) error {
-	// Verificar si el archivo ya existe
+	// Check if file already exists
 	if _, err := os.Stat(filePath); err == nil && !force {
-		return fmt.Errorf("ya existe (usa --force para sobrescribir)")
+		return fmt.Errorf("already exists (use --force to overwrite)")
 	}
 
 	if dryRun {
 		return nil
 	}
 
-	// Crear directorio si no existe
+	// Create directory if it doesn't exist
 	dir := filepath.Dir(filePath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
-	// Escribir archivo
+	// Write file
 	return os.WriteFile(filePath, []byte(content), 0644)
 }
 
-// Templates para arquitectura Layered
+// Templates for Layered architecture
 
 func (g *ModuleGenerator) getHandlerTemplate(nameTitle, nameLower string) string {
 	return fmt.Sprintf(`package handlers
@@ -143,7 +143,7 @@ func New%sHandler(service *services.%sService) *%sHandler {
 	}
 }
 
-// List obtiene todos los %s
+// List gets all %s
 func (h *%sHandler) List(w http.ResponseWriter, r *http.Request) {
 	items, err := h.service.GetAll()
 	if err != nil {
@@ -155,7 +155,7 @@ func (h *%sHandler) List(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(items)
 }
 
-// GetByID obtiene un %s por ID
+// GetByID gets a %s by ID
 func (h *%sHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -174,7 +174,7 @@ func (h *%sHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-// Create crea un nuevo %s
+// Create creates a new %s
 func (h *%sHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var dto dtos.Create%sDTO
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
@@ -193,7 +193,7 @@ func (h *%sHandler) Create(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-// Update actualiza un %s
+// Update updates a %s
 func (h *%sHandler) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -218,7 +218,7 @@ func (h *%sHandler) Update(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-// Delete elimina un %s
+// Delete deletes a %s
 func (h *%sHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -275,7 +275,7 @@ func (s *%sService) GetByID(id int) (*models.%s, error) {
 func (s *%sService) Create(dto *dtos.Create%sDTO) (*models.%s, error) {
 	item := &models.%s{
 		Name: dto.Name,
-		// TODO: Mapear más campos según tu DTO
+		// TODO: Map more fields according to your DTO
 	}
 
 	return s.repo.Create(item)
@@ -290,7 +290,7 @@ func (s *%sService) Update(id int, dto *dtos.Update%sDTO) (*models.%s, error) {
 	if dto.Name != nil {
 		item.Name = *dto.Name
 	}
-	// TODO: Actualizar más campos según tu DTO
+	// TODO: Update more fields according to your DTO
 
 	return s.repo.Update(item)
 }
@@ -403,7 +403,7 @@ type %s struct {
 	Name      string    `+"`json:\"name\"`"+`
 	CreatedAt time.Time `+"`json:\"created_at\"`"+`
 	UpdatedAt time.Time `+"`json:\"updated_at\"`"+`
-	// TODO: Agregar más campos según tus necesidades
+	// TODO: Add more fields according to your needs
 }
 `, nameTitle)
 }
@@ -413,17 +413,17 @@ func (g *ModuleGenerator) getDTOTemplate(nameTitle, nameLower string) string {
 
 type Create%sDTO struct {
 	Name string `+"`json:\"name\" binding:\"required\"`"+`
-	// TODO: Agregar más campos según tus necesidades
+	// TODO: Add more fields according to your needs
 }
 
 type Update%sDTO struct {
 	Name *string `+"`json:\"name,omitempty\"`"+`
-	// TODO: Agregar más campos según tus necesidades
+	// TODO: Add more fields according to your needs
 }
 `, nameTitle, nameTitle)
 }
 
-// Templates para arquitectura Modular
+// Templates for Modular architecture
 
 func (g *ModuleGenerator) getModularHandlerTemplate(nameTitle, nameLower string) string {
 	return fmt.Sprintf(`package %s
@@ -446,7 +446,7 @@ func NewHandler(service Service) *Handler {
 	}
 }
 
-// RegisterRoutes registra las rutas del módulo
+// RegisterRoutes registers the module routes
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/%s", h.List).Methods("GET")
 	router.HandleFunc("/%s/{id}", h.GetByID).Methods("GET")
@@ -568,7 +568,7 @@ func (s *ServiceImpl) GetByID(id int) (*%s, error) {
 func (s *ServiceImpl) Create(dto *Create%sDTO) (*%s, error) {
 	item := &%s{
 		Name: dto.Name,
-		// TODO: Mapear más campos
+		// TODO: Map more fields
 	}
 
 	return s.repo.Create(item)
@@ -583,7 +583,7 @@ func (s *ServiceImpl) Update(id int, dto *Update%sDTO) (*%s, error) {
 	if dto.Name != nil {
 		item.Name = *dto.Name
 	}
-	// TODO: Actualizar más campos
+	// TODO: Update more fields
 
 	return s.repo.Update(item)
 }
@@ -689,7 +689,7 @@ type %s struct {
 	Name      string    `+"`json:\"name\"`"+`
 	CreatedAt time.Time `+"`json:\"created_at\"`"+`
 	UpdatedAt time.Time `+"`json:\"updated_at\"`"+`
-	// TODO: Agregar más campos
+	// TODO: Add more fields
 }
 `, nameLower, nameTitle)
 }
@@ -699,12 +699,12 @@ func (g *ModuleGenerator) getModularDTOTemplate(nameTitle, nameLower string) str
 
 type Create%sDTO struct {
 	Name string `+"`json:\"name\" binding:\"required\"`"+`
-	// TODO: Agregar más campos
+	// TODO: Add more fields
 }
 
 type Update%sDTO struct {
 	Name *string `+"`json:\"name,omitempty\"`"+`
-	// TODO: Agregar más campos
+	// TODO: Add more fields
 }
 `, nameLower, nameTitle, nameTitle)
 }
@@ -737,7 +737,7 @@ func (m *Module) RegisterRoutes(router *mux.Router) {
 func (g *ModuleGenerator) getModularPortsTemplate(nameTitle, nameLower string) string {
 	return fmt.Sprintf(`package %s
 
-// Service define los métodos de negocio del módulo
+// Service defines the business methods of the module
 type Service interface {
 	GetAll() ([]*%s, error)
 	GetByID(id int) (*%s, error)
@@ -746,7 +746,7 @@ type Service interface {
 	Delete(id int) error
 }
 
-// Repository define los métodos de persistencia del módulo
+// Repository defines the persistence methods of the module
 type Repository interface {
 	FindAll() ([]*%s, error)
 	FindByID(id int) (*%s, error)
@@ -771,7 +771,7 @@ var (
 `, nameLower, nameLower, nameLower)
 }
 
-// GenerateHandler genera solo el archivo handler
+// GenerateHandler generates only the handler file
 func (g *ModuleGenerator) GenerateHandler(name string, force bool, dryRun bool) ([]string, error) {
 	nameLower := strings.ToLower(name)
 	nameTitle := strings.Title(nameLower)
@@ -794,7 +794,7 @@ func (g *ModuleGenerator) GenerateHandler(name string, force bool, dryRun bool) 
 	return []string{filePath}, nil
 }
 
-// GenerateService genera solo el archivo service
+// GenerateService generates only the service file
 func (g *ModuleGenerator) GenerateService(name string, force bool, dryRun bool) ([]string, error) {
 	nameLower := strings.ToLower(name)
 	nameTitle := strings.Title(nameLower)
@@ -817,7 +817,7 @@ func (g *ModuleGenerator) GenerateService(name string, force bool, dryRun bool) 
 	return []string{filePath}, nil
 }
 
-// GenerateModel genera solo el archivo model
+// GenerateModel generates only the model file
 func (g *ModuleGenerator) GenerateModel(name string, force bool, dryRun bool) ([]string, error) {
 	nameLower := strings.ToLower(name)
 	nameTitle := strings.Title(nameLower)
@@ -840,7 +840,7 @@ func (g *ModuleGenerator) GenerateModel(name string, force bool, dryRun bool) ([
 	return []string{filePath}, nil
 }
 
-// GenerateMiddleware genera un middleware
+// GenerateMiddleware generates a middleware
 func (g *ModuleGenerator) GenerateMiddleware(name string, force bool, dryRun bool) ([]string, error) {
 	nameLower := strings.ToLower(name)
 	nameTitle := strings.Title(nameLower)
@@ -865,9 +865,9 @@ import (
 func %s(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Middleware %s: %%s %%s", r.Method, r.URL.Path)
-		
-		// Implementa tu lógica aquí
-		
+
+		// Implement your logic here
+
 		next.ServeHTTP(w, r)
 	})
 }
