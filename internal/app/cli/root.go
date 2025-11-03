@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"github.com/geomark27/loom-go/internal/version"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +13,7 @@ of Go projects following community best practices.
 
 Loom is not a runtime framework, but a code generator
 and project architecture orchestrator.`,
-	Version: "1.0.5",
+	Version: version.Current.String(), // Dynamic version from single source of truth
 }
 
 // Execute executes the root command

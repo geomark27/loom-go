@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.6] - 2025-11-03
+
+### 🔧 Changed
+- **Complete dynamic version system**: CLI version now also reads from `version.Current`
+  - Removed hardcoded version string from `root.go`
+  - CLI `--version` now uses `version.Current.String()` dynamically
+  - TRUE single source of truth: only `version.go` needs updates
+
+### 🎯 Impact
+- **Zero manual updates**: Change version ONCE in `version.go`, everything syncs
+  - CLI version ✅ (from `version.Current`)
+  - Generated projects ✅ (via `{{.LoomVersion}}`)
+  - Perfect synchronization guaranteed
+
+### 📝 Note
+This completes the dynamic version system started in v1.0.5.
+Now the entire codebase has a true single source of truth for versioning.
+
+---
+
 ## [1.0.5] - 2025-11-03
 
 ### 🔧 Changed
@@ -313,6 +333,7 @@ go install github.com/geomark27/loom-go/cmd/loom@latest
 
 ## Version Links
 
+- [1.0.6]: https://github.com/geomark27/loom-go/releases/tag/v1.0.6
 - [1.0.5]: https://github.com/geomark27/loom-go/releases/tag/v1.0.5
 - [1.0.4]: https://github.com/geomark27/loom-go/releases/tag/v1.0.4
 - [1.0.3]: https://github.com/geomark27/loom-go/releases/tag/v1.0.3
