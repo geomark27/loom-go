@@ -148,12 +148,12 @@ func (g *Generator) getLayeredFiles(config *ProjectConfig) map[string]string {
 		filepath.Join(config.Path, "internal", "platform", "server", "routes.go"): "layered/routes.go.tmpl",
 
 		// internal/app
-		filepath.Join(config.Path, "internal", "app", "handlers", "health_handler.go"):   "layered/health_handler.go.tmpl",
-		filepath.Join(config.Path, "internal", "app", "handlers", "user_handler.go"):     "layered/user_handler.go.tmpl",
-		filepath.Join(config.Path, "internal", "app", "services", "user_service.go"):     "layered/user_service.go.tmpl",
+		filepath.Join(config.Path, "internal", "app", "handlers", "health_handler.go"):      "layered/health_handler.go.tmpl",
+		filepath.Join(config.Path, "internal", "app", "handlers", "user_handler.go"):        "layered/user_handler.go.tmpl",
+		filepath.Join(config.Path, "internal", "app", "services", "user_service.go"):        "layered/user_service.go.tmpl",
 		filepath.Join(config.Path, "internal", "app", "repositories", "user_repository.go"): "layered/user_repository.go.tmpl",
-		filepath.Join(config.Path, "internal", "app", "models", "user.go"):               "user_model.go.tmpl",
-		filepath.Join(config.Path, "internal", "app", "dtos", "user_dto.go"):             "user_dto.go.tmpl",
+		filepath.Join(config.Path, "internal", "app", "models", "user.go"):                  "user_model.go.tmpl",
+		filepath.Join(config.Path, "internal", "app", "dtos", "user_dto.go"):                "user_dto.go.tmpl",
 
 		// internal/shared
 		filepath.Join(config.Path, "internal", "shared", "middleware", "cors_middleware.go"): "cors_middleware.go.tmpl",
@@ -177,9 +177,9 @@ func (g *Generator) getModularFiles(config *ProjectConfig) map[string]string {
 		filepath.Join(config.Path, "cmd", config.Name, "main.go"): "modular/main.go.tmpl",
 
 		// internal/platform
-		filepath.Join(config.Path, "internal", "platform", "config", "config.go"):   "config.go.tmpl",
-		filepath.Join(config.Path, "internal", "platform", "server", "server.go"):   "modular/server.go.tmpl",
-		filepath.Join(config.Path, "internal", "platform", "server", "router.go"):   "modular/router.go.tmpl",
+		filepath.Join(config.Path, "internal", "platform", "config", "config.go"):    "config.go.tmpl",
+		filepath.Join(config.Path, "internal", "platform", "server", "server.go"):    "modular/server.go.tmpl",
+		filepath.Join(config.Path, "internal", "platform", "server", "router.go"):    "modular/router.go.tmpl",
 		filepath.Join(config.Path, "internal", "platform", "events", "event_bus.go"): "modular/event_bus.go.tmpl",
 
 		// internal/modules/users

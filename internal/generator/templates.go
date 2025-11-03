@@ -1,4 +1,4 @@
-﻿package generator
+package generator
 
 import (
 	"embed"
@@ -34,27 +34,27 @@ func getTemplates() map[string]string {
 		// ======================================
 		"layered/server.go.tmpl":          "templates/layered/server.go.tmpl",
 		"layered/routes.go.tmpl":          "templates/layered/routes.go.tmpl",
-		"layered/health_handler.go.tmpl": "templates/layered/health_handler.go.tmpl",
-		"layered/user_handler.go.tmpl":   "templates/layered/user_handler.go.tmpl",
-		"layered/user_service.go.tmpl":   "templates/layered/user_service.go.tmpl",
+		"layered/health_handler.go.tmpl":  "templates/layered/health_handler.go.tmpl",
+		"layered/user_handler.go.tmpl":    "templates/layered/user_handler.go.tmpl",
+		"layered/user_service.go.tmpl":    "templates/layered/user_service.go.tmpl",
 		"layered/user_repository.go.tmpl": "templates/layered/user_repository.go.tmpl",
 
 		// ======================================
 		// MODULAR Architecture Templates
 		// ======================================
-		"modular/main.go.tmpl":      "templates/modular/main.go.tmpl",
-		"modular/server.go.tmpl":    "templates/modular/server.go.tmpl",
-		"modular/router.go.tmpl":    "templates/modular/router.go.tmpl",
-		"modular/event_bus.go.tmpl": "templates/modular/event_bus.go.tmpl",
-		"modular/ports.go.tmpl":     "templates/modular/ports.go.tmpl",
-		"modular/service.go.tmpl":   "templates/modular/service.go.tmpl",
+		"modular/main.go.tmpl":       "templates/modular/main.go.tmpl",
+		"modular/server.go.tmpl":     "templates/modular/server.go.tmpl",
+		"modular/router.go.tmpl":     "templates/modular/router.go.tmpl",
+		"modular/event_bus.go.tmpl":  "templates/modular/event_bus.go.tmpl",
+		"modular/ports.go.tmpl":      "templates/modular/ports.go.tmpl",
+		"modular/service.go.tmpl":    "templates/modular/service.go.tmpl",
 		"modular/repository.go.tmpl": "templates/modular/repository.go.tmpl",
-		"modular/handler.go.tmpl":   "templates/modular/handler.go.tmpl",
-		"modular/model.go.tmpl":     "templates/modular/model.go.tmpl",
-		"modular/dto.go.tmpl":       "templates/modular/dto.go.tmpl",
-		"modular/module.go.tmpl":    "templates/modular/module.go.tmpl",
-		"modular/errors.go.tmpl":    "templates/modular/errors.go.tmpl",
-		"modular/api_docs.tmpl":     "templates/modular/api_docs.tmpl",
+		"modular/handler.go.tmpl":    "templates/modular/handler.go.tmpl",
+		"modular/model.go.tmpl":      "templates/modular/model.go.tmpl",
+		"modular/dto.go.tmpl":        "templates/modular/dto.go.tmpl",
+		"modular/module.go.tmpl":     "templates/modular/module.go.tmpl",
+		"modular/errors.go.tmpl":     "templates/modular/errors.go.tmpl",
+		"modular/api_docs.tmpl":      "templates/modular/api_docs.tmpl",
 
 		// ======================================
 		// Shared Templates (usados por ambas arquitecturas)
