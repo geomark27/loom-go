@@ -12,7 +12,7 @@ of Go projects following community best practices.
 
 Loom is not a runtime framework, but a code generator
 and project architecture orchestrator.`,
-	Version: "1.0.4",
+	Version: "1.0.5",
 }
 
 // Execute executes the root command

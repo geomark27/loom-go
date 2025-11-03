@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.5] - 2025-11-03
+
+### 🔧 Changed
+- **Dynamic version injection**: Template now uses `{{.LoomVersion}}` for automatic version updates
+  - Added `LoomVersion` field to `ProjectConfig`
+  - Version is now injected automatically from `version.Current`
+  - Eliminates manual version updates in templates
+
+### 🐛 Fixed
+- Fixed embedded go.mod template referencing outdated version
+- Generated projects now correctly use the current Loom version
+
+### 🎯 Impact
+- No more manual version updates needed in templates
+- Single source of truth for version (`internal/version/version.go`)
+- Future releases will automatically use correct version in generated projects
+
+---
+
 ## [1.0.4] - 2025-11-03
 
 ### 🌍 Changed
@@ -294,6 +313,7 @@ go install github.com/geomark27/loom-go/cmd/loom@latest
 
 ## Version Links
 
+- [1.0.5]: https://github.com/geomark27/loom-go/releases/tag/v1.0.5
 - [1.0.4]: https://github.com/geomark27/loom-go/releases/tag/v1.0.4
 - [1.0.3]: https://github.com/geomark27/loom-go/releases/tag/v1.0.3
 - [1.0.1]: https://github.com/geomark27/loom-go/releases/tag/v1.0.1
