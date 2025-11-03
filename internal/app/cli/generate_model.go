@@ -8,15 +8,15 @@ import (
 )
 
 var generateModelCmd = &cobra.Command{
-	Use:   "model [nombre]",
-	Short: "Genera un modelo de datos",
-	Long: `Genera un archivo model con la estructura de datos.
+	Use:   "model [name]",
+	Short: "Generate a data model",
+	Long: `Generate a model file with the data structure.
 
-El archivo se generará en la ubicación apropiada según la arquitectura:
-  - Layered: internal/app/models/{nombre}.go
-  - Modular: internal/modules/{nombre}/model.go
+The file will be generated in the appropriate location according to the architecture:
+  - Layered: internal/app/models/{name}.go
+  - Modular: internal/modules/{name}/model.go
 
-Ejemplos:
+Examples:
   loom generate model Product
   loom generate model User --force`,
 	Aliases: []string{"mod"},
@@ -35,33 +35,33 @@ func runGenerateModel(cmd *cobra.Command, args []string) error {
 
 	projectInfo, err := generator.DetectProject()
 	if err != nil {
-		return fmt.Errorf("error: no se detectó un proyecto Loom válido. %w", err)
+		return fmt.Errorf("error: no valid Loom project detected. %w", err)
 	}
 
 	if err := generator.ValidateComponentName(name); err != nil {
-		return fmt.Errorf("nombre de model inválido: %w", err)
+		return fmt.Errorf("invalid model name: %w", err)
 	}
 
-	fmt.Printf("🔍 Proyecto: %s (%s)\n", projectInfo.Name, projectInfo.Architecture)
-	fmt.Printf("📦 Generando model: %s\n\n", name)
+	fmt.Printf("🔍 Project: %s (%s)\n", projectInfo.Name, projectInfo.Architecture)
+	fmt.Printf("📦 Generating model: %s\n\n", name)
 
 	gen := generator.NewModuleGenerator(projectInfo)
 	files, err := gen.GenerateModel(name, force, dryRun)
 	if err != nil {
-		return fmt.Errorf("error al generar model: %w", err)
+		return fmt.Errorf("error generating model: %w", err)
 	}
 
 	if dryRun {
-		fmt.Println("📋 Archivo que se generaría:")
+		fmt.Println("📋 File that would be generated:")
 		for _, file := range files {
 			fmt.Printf("   ✨ %s\n", file)
 		}
-		fmt.Println("\n💡 Ejecuta sin --dry-run para crear el archivo")
+		fmt.Println("\n💡 Run without --dry-run to create the file")
 		return nil
 	}
 
-	fmt.Println("✅ Model generado exitosamente!")
-	fmt.Println("\n📝 Archivo creado:")
+	fmt.Println("✅ Model generated successfully!")
+	fmt.Println("\n📝 File created:")
 	for _, file := range files {
 		fmt.Printf("   ✨ %s\n", file)
 	}

@@ -8,15 +8,15 @@ import (
 )
 
 var generateServiceCmd = &cobra.Command{
-	Use:   "service [nombre]",
-	Short: "Genera un service con lógica de negocio",
-	Long: `Genera un archivo service para contener la lógica de negocio.
+	Use:   "service [name]",
+	Short: "Generate a service with business logic",
+	Long: `Generate a service file to contain business logic.
 
-El archivo se generará en la ubicación apropiada según la arquitectura:
-  - Layered: internal/app/services/{nombre}_service.go
-  - Modular: internal/modules/{nombre}/service.go
+The file will be generated in the appropriate location based on architecture:
+  - Layered: internal/app/services/{name}_service.go
+  - Modular: internal/modules/{name}/service.go
 
-Ejemplos:
+Examples:
   loom generate service products
   loom generate service email --force`,
 	Aliases: []string{"svc", "s"},
@@ -35,33 +35,33 @@ func runGenerateService(cmd *cobra.Command, args []string) error {
 
 	projectInfo, err := generator.DetectProject()
 	if err != nil {
-		return fmt.Errorf("error: no se detectó un proyecto Loom válido. %w", err)
+		return fmt.Errorf("error: no valid Loom project detected. %w", err)
 	}
 
 	if err := generator.ValidateComponentName(name); err != nil {
-		return fmt.Errorf("nombre de service inválido: %w", err)
+		return fmt.Errorf("invalid service name: %w", err)
 	}
 
-	fmt.Printf("🔍 Proyecto: %s (%s)\n", projectInfo.Name, projectInfo.Architecture)
-	fmt.Printf("📦 Generando service: %s\n\n", name)
+	fmt.Printf("🔍 Project: %s (%s)\n", projectInfo.Name, projectInfo.Architecture)
+	fmt.Printf("📦 Generating service: %s\n\n", name)
 
 	gen := generator.NewModuleGenerator(projectInfo)
 	files, err := gen.GenerateService(name, force, dryRun)
 	if err != nil {
-		return fmt.Errorf("error al generar service: %w", err)
+		return fmt.Errorf("error generating service: %w", err)
 	}
 
 	if dryRun {
-		fmt.Println("📋 Archivo que se generaría:")
+		fmt.Println("📋 File that would be generated:")
 		for _, file := range files {
 			fmt.Printf("   ✨ %s\n", file)
 		}
-		fmt.Println("\n💡 Ejecuta sin --dry-run para crear el archivo")
+		fmt.Println("\n💡 Run without --dry-run to create the file")
 		return nil
 	}
 
-	fmt.Println("✅ Service generado exitosamente!")
-	fmt.Println("\n📝 Archivo creado:")
+	fmt.Println("✅ Service generated successfully!")
+	fmt.Println("\n📝 File created:")
 	for _, file := range files {
 		fmt.Printf("   ✨ %s\n", file)
 	}

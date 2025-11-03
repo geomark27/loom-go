@@ -9,11 +9,11 @@ import (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Muestra la versión de Loom CLI y del proyecto actual",
-	Long: `Muestra información de versiones:
-  - Versión del CLI de Loom
-  - Versión del proyecto actual (si está en un proyecto Loom)
-  - Estado de actualización`,
+	Short: "Show Loom CLI and current project version",
+	Long: `Show version information:
+  - Loom CLI version
+  - Current project version (if in a Loom project)
+  - Update status`,
 	RunE: runVersion,
 }
 
@@ -24,23 +24,23 @@ func init() {
 func runVersion(cmd *cobra.Command, args []string) error {
 	fmt.Printf("🔧 Loom CLI v%s\n", version.Current.String())
 
-	// Intentar detectar versión del proyecto
+	// Try to detect project version
 	projectVersion, err := version.DetectProjectVersion()
 	if err == nil {
-		fmt.Printf("📦 Proyecto actual: v%s\n", projectVersion.String())
+		fmt.Printf("📦 Current project: v%s\n", projectVersion.String())
 
-		// Comparar versiones
+		// Compare versions
 		if projectVersion.Compare(version.Current) < 0 {
-			fmt.Printf("\n⚠️  Tu proyecto usa una versión antigua de Loom\n")
-			fmt.Printf("💡 Actualiza con: loom upgrade\n")
+			fmt.Printf("\n⚠️  Your project uses an old version of Loom\n")
+			fmt.Printf("💡 Update with: loom upgrade\n")
 		} else if projectVersion.Compare(version.Current) == 0 {
-			fmt.Printf("✅ Tu proyecto está actualizado\n")
+			fmt.Printf("✅ Your project is up to date\n")
 		} else {
-			fmt.Printf("⚠️  Tu proyecto usa una versión más nueva que el CLI\n")
-			fmt.Printf("💡 Actualiza el CLI de Loom\n")
+			fmt.Printf("⚠️  Your project uses a newer version than the CLI\n")
+			fmt.Printf("💡 Update the Loom CLI\n")
 		}
 	} else {
-		fmt.Printf("\nℹ️  No se detectó un proyecto Loom en el directorio actual\n")
+		fmt.Printf("\nℹ️  No Loom project detected in current directory\n")
 	}
 
 	return nil

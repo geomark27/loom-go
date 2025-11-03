@@ -13,26 +13,26 @@ var (
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add [tipo] [nombre]",
-	Short: "Añade componentes y tecnologías al proyecto",
-	Long: `Añade y configura nuevas tecnologías en un proyecto Loom existente.
+	Use:   "add [type] [name]",
+	Short: "Add components and technologies to the project",
+	Long: `Add and configure new technologies in an existing Loom project.
 
-Permite cambiar routers, añadir ORMs, configurar bases de datos,
-implementar autenticación, y más.
+Allows changing routers, adding ORMs, configuring databases,
+implementing authentication, and more.
 
-Categorías disponibles:
-  router      - Frameworks HTTP (gin, chi, echo)
+Available categories:
+  router      - HTTP Frameworks (gin, chi, echo)
   orm         - ORMs (gorm, sqlc)
-  database    - Bases de datos (postgres, mysql, mongodb, redis)
-  auth        - Autenticación (jwt, oauth2)
-  docker      - Containerización
+  database    - Databases (postgres, mysql, mongodb, redis)
+  auth        - Authentication (jwt, oauth2)
+  docker      - Containerization
 
-Ejemplos:
-  loom add router gin          # Cambiar a Gin
-  loom add orm gorm            # Agregar GORM
-  loom add database postgres   # Configurar PostgreSQL
-  loom add auth jwt            # Agregar JWT auth
-  loom add docker              # Agregar Dockerfile`,
+Examples:
+  loom add router gin          # Switch to Gin
+  loom add orm gorm            # Add GORM
+  loom add database postgres   # Configure PostgreSQL
+  loom add auth jwt            # Add JWT auth
+  loom add docker              # Add Dockerfile`,
 	Args: cobra.MinimumNArgs(1),
 	RunE: runAdd,
 }
@@ -40,7 +40,7 @@ Ejemplos:
 func init() {
 	rootCmd.AddCommand(addCmd)
 
-	addCmd.Flags().BoolVar(&addForce, "force", false, "Forzar instalación (reemplaza existente)")
+	addCmd.Flags().BoolVar(&addForce, "force", false, "Force installation (replaces existing)")
 }
 
 func runAdd(cmd *cobra.Command, args []string) error {
@@ -49,37 +49,37 @@ func runAdd(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(args) < 2 {
-		return fmt.Errorf("uso: loom add [tipo] [nombre]\nEjemplo: loom add router gin")
+		return fmt.Errorf("usage: loom add [type] [name]\nExample: loom add router gin")
 	}
 
 	category := args[0]
 	name := args[1]
 
-	// Detectar proyecto
+	// Detect project
 	projectInfo, err := generator.DetectProject()
 	if err != nil {
-		return fmt.Errorf("error: no se detectó un proyecto Loom válido. %w", err)
+		return fmt.Errorf("error: no valid Loom project detected. %w", err)
 	}
 
-	fmt.Printf("🔍 Proyecto: %s (%s)\n", projectInfo.Name, projectInfo.Architecture)
+	fmt.Printf("🔍 Project: %s (%s)\n", projectInfo.Name, projectInfo.Architecture)
 
-	// Crear gestor de addons
+	// Create addon manager
 	manager := addon.NewAddonManager(projectInfo.RootPath, projectInfo.Architecture)
 
-	// Mapear categoría a nombre de addon
+	// Map category to addon name
 	addonName := mapCategoryToAddon(category, name)
 	if addonName == "" {
-		return fmt.Errorf("addon no reconocido: %s %s", category, name)
+		return fmt.Errorf("unrecognized addon: %s %s", category, name)
 	}
 
-	// Instalar addon
-	fmt.Printf("📦 Añadiendo %s %s...\n\n", category, name)
+	// Install addon
+	fmt.Printf("📦 Adding %s %s...\n\n", category, name)
 
 	if err := manager.InstallAddon(addonName, addForce); err != nil {
 		return err
 	}
 
-	// Mostrar próximos pasos
+	// Show next steps
 	showNextSteps(category, name)
 
 	return nil
@@ -93,18 +93,18 @@ func mapCategoryToAddon(category, name string) string {
 		"auth":     {"jwt", "oauth2"},
 	}
 
-	// Docker es especial (no tiene nombre)
+	// Docker is special (no name)
 	if category == "docker" {
 		return "docker"
 	}
 
-	// Verificar que la categoría existe
+	// Verify that the category exists
 	validNames, exists := categories[category]
 	if !exists {
 		return ""
 	}
 
-	// Verificar que el nombre es válido para esa categoría
+	// Verify that the name is valid for that category
 	for _, valid := range validNames {
 		if name == valid {
 			return name
@@ -115,10 +115,10 @@ func mapCategoryToAddon(category, name string) string {
 }
 
 func showAvailableAddons() error {
-	fmt.Println("📦 Addons disponibles:")
+	fmt.Println("📦 Available addons:")
 	fmt.Println()
 
-	fmt.Println("🌐 Routers HTTP:")
+	fmt.Println("🌐 HTTP Routers:")
 	fmt.Println("   loom add router gin      - Gin Web Framework")
 	fmt.Println("   loom add router chi      - Chi Router")
 	fmt.Println("   loom add router echo     - Echo Framework")
@@ -127,55 +127,55 @@ func showAvailableAddons() error {
 	fmt.Println("   loom add orm gorm        - GORM")
 	fmt.Println("   loom add orm sqlc        - sqlc")
 
-	fmt.Println("\n🗄️  Bases de Datos:")
+	fmt.Println("\n🗄️  Databases:")
 	fmt.Println("   loom add database postgres   - PostgreSQL")
 	fmt.Println("   loom add database mysql      - MySQL")
 	fmt.Println("   loom add database mongodb    - MongoDB")
 	fmt.Println("   loom add database redis      - Redis")
 
-	fmt.Println("\n🔐 Autenticación:")
+	fmt.Println("\n🔐 Authentication:")
 	fmt.Println("   loom add auth jwt        - JWT Authentication")
 	fmt.Println("   loom add auth oauth2     - OAuth 2.0")
 
 	fmt.Println("\n🐳 Infrastructure:")
 	fmt.Println("   loom add docker          - Docker + Docker Compose")
 
-	fmt.Println("\n💡 Usa 'loom add [tipo] [nombre]' para instalar")
+	fmt.Println("\n💡 Use 'loom add [type] [name]' to install")
 
 	return nil
 }
 
 func showNextSteps(category, name string) {
-	fmt.Println("\n📝 Próximos pasos:")
+	fmt.Println("\n📝 Next steps:")
 
 	switch category {
 	case "router":
-		fmt.Println("   1. Ejecuta: go mod tidy")
-		fmt.Println("   2. Actualiza tus handlers para usar la nueva API")
-		fmt.Println("   3. Ejecuta: go build ./cmd/...")
+		fmt.Println("   1. Run: go mod tidy")
+		fmt.Println("   2. Update your handlers to use the new API")
+		fmt.Println("   3. Run: go build ./cmd/...")
 
 	case "orm":
-		fmt.Println("   1. Ejecuta: go mod tidy")
-		fmt.Println("   2. Configura la conexión a la base de datos")
-		fmt.Println("   3. Actualiza tus repositories para usar el ORM")
+		fmt.Println("   1. Run: go mod tidy")
+		fmt.Println("   2. Configure the database connection")
+		fmt.Println("   3. Update your repositories to use the ORM")
 
 	case "database":
-		fmt.Println("   1. Ejecuta: go mod tidy")
-		fmt.Println("   2. Copia .env.example a .env y configura las credenciales")
+		fmt.Println("   1. Run: go mod tidy")
+		fmt.Println("   2. Copy .env.example to .env and configure credentials")
 		if name == "postgres" || name == "mysql" {
-			fmt.Println("   3. Considera ejecutar: loom add docker")
+			fmt.Println("   3. Consider running: loom add docker")
 		}
 
 	case "auth":
-		fmt.Println("   1. Ejecuta: go mod tidy")
-		fmt.Println("   2. Copia .env.example a .env y cambia JWT_SECRET")
-		fmt.Println("   3. Implementa los endpoints de autenticación")
+		fmt.Println("   1. Run: go mod tidy")
+		fmt.Println("   2. Copy .env.example to .env and change JWT_SECRET")
+		fmt.Println("   3. Implement authentication endpoints")
 
 	case "docker":
-		fmt.Println("   1. Construye la imagen: docker-compose build")
-		fmt.Println("   2. Inicia los containers: docker-compose up -d")
-		fmt.Println("   3. Ve los logs: docker-compose logs -f app")
+		fmt.Println("   1. Build the image: docker-compose build")
+		fmt.Println("   2. Start containers: docker-compose up -d")
+		fmt.Println("   3. View logs: docker-compose logs -f app")
 	}
 
-	fmt.Println("\n✨ ¡Listo! Tu proyecto ha sido actualizado")
+	fmt.Println("\n✨ Done! Your project has been updated")
 }

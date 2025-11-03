@@ -1,236 +1,236 @@
-# 📖 Documentación Técnica - Loom
+# 📖 Technical Documentation - Loom
 
-Documentación completa para desarrolladores que usan Loom.
+Complete documentation for developers using Loom.
 
-## 📑 Tabla de Contenidos
+## 📑 Table of Contents
 
-- [Conceptos Fundamentales](#conceptos-fundamentales)
-- [Arquitecturas](#arquitecturas)
-- [Comandos Detallados](#comandos-detallados)
-- [Sistema de Addons](#sistema-de-addons)
-- [Sistema de Versionado](#sistema-de-versionado)
+- [Core Concepts](#core-concepts)
+- [Architectures](#architectures)
+- [Detailed Commands](#detailed-commands)
+- [Addon System](#addon-system)
+- [Versioning System](#versioning-system)
 - [Helpers API](#helpers-api)
-- [Buenas Prácticas](#buenas-prácticas)
+- [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 
 ---
 
-## 🎯 Conceptos Fundamentales
+## 🎯 Core Concepts
 
-### ¿Qué NO es Loom?
+### What Loom is NOT
 
-Loom **NO es un framework**. No añade overhead en runtime ni te obliga a usar una API específica.
+Loom **is NOT a framework**. It does not add runtime overhead nor force you to use a specific API.
 
-### ¿Qué SÍ es Loom?
+### What Loom IS
 
-Loom es un **generador de código**:
-- ✅ Genera código idiomático de Go
-- ✅ Crea estructura de proyecto profesional
-- ✅ Proporciona herramientas para extender el proyecto
-- ✅ No añade dependencias obligatorias (con `--standalone`)
-- ✅ Sin magia, sin reflection innecesario, sin DSLs
+Loom is a **code generator**:
+- ✅ Generates idiomatic Go code
+- ✅ Creates professional project structure
+- ✅ Provides tools to extend the project
+- ✅ Does not add mandatory dependencies (with `--standalone`)
+- ✅ No magic, no unnecessary reflection, no DSLs
 
-### Filosofía: "Cerrado para modificación, Abierto para extensión"
+### Philosophy: "Closed for modification, Open for extension"
 
-Una vez generado el código:
-- Es **TU código**, no de Loom
-- Puedes modificarlo como quieras
-- No hay vendor lock-in
-- Puedes remover Loom del proyecto si quieres
+Once the code is generated:
+- It's **YOUR code**, not Loom's
+- You can modify it as you wish
+- No vendor lock-in
+- You can remove Loom from the project if you want
 
 ---
 
-## 🏗️ Arquitecturas
+## 🏗️ Architectures
 
-Loom soporta dos arquitecturas diferentes para diferentes necesidades:
+Loom supports two different architectures for different needs:
 
-### 1. Arquitectura Layered (Por Capas)
+### 1. Layered Architecture
 
-**Cuándo usar:**
-- APIs REST simples
-- Microservicios pequeños
-- Proyectos con un solo dominio
-- Equipos pequeños (1-3 desarrolladores)
+**When to use:**
+- Simple REST APIs
+- Small microservices
+- Single-domain projects
+- Small teams (1-3 developers)
 
-**Estructura:**
+**Structure:**
 
 ```
-proyecto/
+project/
 ├── cmd/
-│   └── proyecto/
+│   └── project/
 │       └── main.go
 ├── internal/
 │   ├── app/
-│   │   ├── handlers/      # Capa de presentación (HTTP)
-│   │   ├── services/      # Capa de negocio
-│   │   ├── repositories/  # Capa de datos
-│   │   ├── models/        # Modelos de dominio
+│   │   ├── handlers/      # Presentation layer (HTTP)
+│   │   ├── services/      # Business layer
+│   │   ├── repositories/  # Data layer
+│   │   ├── models/        # Domain models
 │   │   ├── dtos/          # Transfer objects
-│   │   └── middleware/    # Middleware HTTP
-│   ├── config/            # Configuración
-│   └── server/            # Servidor HTTP
+│   │   └── middleware/    # HTTP middleware
+│   ├── config/            # Configuration
+│   └── server/            # HTTP server
 └── pkg/
-    └── helpers/           # Utilidades (opcional)
+    └── helpers/           # Utilities (optional)
 ```
 
-**Flujo de datos:**
+**Data flow:**
 ```
 HTTP Request → Handler → Service → Repository → Database
                   ↓
 HTTP Response ← Handler ← Service ← Repository ← Database
 ```
 
-**Ventajas:**
-- ✅ Simple y directo
-- ✅ Fácil de entender
-- ✅ Buena separación de responsabilidades
-- ✅ Bajo acoplamiento entre capas
+**Advantages:**
+- ✅ Simple and straightforward
+- ✅ Easy to understand
+- ✅ Good separation of concerns
+- ✅ Low coupling between layers
 
-**Desventajas:**
-- ❌ Difícil de escalar con muchos dominios
-- ❌ Puede volverse un "big ball of mud" en proyectos grandes
+**Disadvantages:**
+- ❌ Hard to scale with many domains
+- ❌ Can become a "big ball of mud" in large projects
 
-### 2. Arquitectura Modular (Por Dominios)
+### 2. Modular Architecture (By Domains)
 
-**Cuándo usar:**
-- Aplicaciones grandes
-- Múltiples dominios de negocio
-- Equipos grandes (4+ desarrolladores)
-- Necesitas separación clara por feature/dominio
+**When to use:**
+- Large applications
+- Multiple business domains
+- Large teams (4+ developers)
+- Need clear separation by feature/domain
 
-**Estructura:**
+**Structure:**
 
 ```
-proyecto/
+project/
 ├── cmd/
-│   └── proyecto/
+│   └── project/
 │       └── main.go
 ├── internal/
-│   ├── modules/                # Módulos de dominio
+│   ├── modules/                # Domain modules
 │   │   ├── users/
 │   │   │   ├── handler.go      # HTTP handler
-│   │   │   ├── service.go      # Lógica de negocio
-│   │   │   ├── repository.go   # Acceso a datos
-│   │   │   ├── model.go        # Modelo
+│   │   │   ├── service.go      # Business logic
+│   │   │   ├── repository.go   # Data access
+│   │   │   ├── model.go        # Model
 │   │   │   ├── dto.go          # DTOs
-│   │   │   ├── router.go       # Rutas del módulo
-│   │   │   ├── validator.go    # Validaciones específicas
-│   │   │   ├── errors.go       # Errores del dominio
+│   │   │   ├── router.go       # Module routes
+│   │   │   ├── validator.go    # Specific validations
+│   │   │   ├── errors.go       # Domain errors
 │   │   │   └── ports.go        # Interfaces (DIP)
 │   │   └── products/
-│   │       └── ...             # Misma estructura
-│   └── platform/               # Infraestructura compartida
+│   │       └── ...             # Same structure
+│   └── platform/               # Shared infrastructure
 │       ├── server/
 │       ├── config/
-│       └── eventbus/           # Comunicación entre módulos
+│       └── eventbus/           # Inter-module communication
 └── pkg/
     └── helpers/
 ```
 
-**Comunicación entre módulos:**
+**Inter-module communication:**
 
 ```go
-// Usar Event Bus (recomendado)
+// Use Event Bus (recommended)
 eventbus.Publish("user.created", UserCreatedEvent{UserID: id})
 
-// O interfaces (DIP - Dependency Inversion Principle)
+// Or interfaces (DIP - Dependency Inversion Principle)
 type UserFinder interface {
     FindByID(id int) (*User, error)
 }
 ```
 
-**Ventajas:**
-- ✅ Escalabilidad horizontal
-- ✅ Módulos independientes
-- ✅ Fácil trabajar en equipo (cada dev un módulo)
-- ✅ Bajo acoplamiento entre dominios
-- ✅ Fácil extraer a microservicios
+**Advantages:**
+- ✅ Horizontal scalability
+- ✅ Independent modules
+- ✅ Easy to work in teams (each dev a module)
+- ✅ Low coupling between domains
+- ✅ Easy to extract to microservices
 
-**Desventajas:**
-- ❌ Más complejo inicialmente
-- ❌ Overhead de comunicación entre módulos
-- ❌ Más archivos y estructura
+**Disadvantages:**
+- ❌ More complex initially
+- ❌ Communication overhead between modules
+- ❌ More files and structure
 
-### Comparación Rápida
+### Quick Comparison
 
-| Aspecto | Layered | Modular |
+| Aspect | Layered | Modular |
 |---------|---------|---------|
-| **Complejidad** | Baja | Media-Alta |
-| **Escalabilidad** | Limitada | Excelente |
-| **Curva de aprendizaje** | Suave | Empinada |
-| **Tamaño ideal** | Pequeño-Mediano | Mediano-Grande |
-| **Equipo** | 1-3 devs | 4+ devs |
-| **Dominios** | 1-2 | 3+ |
+| **Complexity** | Low | Medium-High |
+| **Scalability** | Limited | Excellent |
+| **Learning curve** | Gentle | Steep |
+| **Ideal size** | Small-Medium | Medium-Large |
+| **Team** | 1-3 devs | 4+ devs |
+| **Domains** | 1-2 | 3+ |
 
 ---
 
-## 🎨 Comandos Detallados
+## 🎨 Detailed Commands
 
-### `loom new` - Crear Proyectos
+### `loom new` - Create Projects
 
 ```bash
-loom new [nombre] [flags]
+loom new [name] [flags]
 ```
 
 **Flags:**
-- `--modular` - Usa arquitectura Modular (por defecto: Layered)
-- `--standalone` - Sin helpers (100% independiente)
-- `-m, --module <name>` - Especifica el nombre del módulo Go
+- `--modular` - Use Modular architecture (default: Layered)
+- `--standalone` - No helpers (100% independent)
+- `-m, --module <name>` - Specify Go module name
 
-**Ejemplos:**
+**Examples:**
 
 ```bash
-# Proyecto básico Layered
+# Basic Layered project
 loom new api
 
-# Proyecto Modular
+# Modular project
 loom new app --modular
 
-# Proyecto standalone (sin helpers)
+# Standalone project (no helpers)
 loom new service --standalone
 
-# Con módulo Go personalizado
-loom new api -m github.com/miempresa/mi-api
+# With custom Go module
+loom new api -m github.com/mycompany/my-api
 ```
 
-**¿Qué genera?**
-- Estructura completa de directorios
-- `go.mod` con módulo Go
-- Servidor HTTP funcional (Gorilla Mux)
-- CRUD de usuarios de ejemplo
+**What does it generate?**
+- Complete directory structure
+- `go.mod` with Go module
+- Functional HTTP server (Gorilla Mux)
+- Example user CRUD
 - Health checks (/, /health, /ready)
-- Middleware CORS
-- `.env.example` con configuración
-- `Makefile` con comandos útiles
-- `README.md` y `docs/API.md`
-- `.gitignore` completo
+- CORS middleware
+- `.env.example` with configuration
+- `Makefile` with useful commands
+- `README.md` and `docs/API.md`
+- Complete `.gitignore`
 
 ---
 
-### `loom generate` - Generar Componentes
+### `loom generate` - Generate Components
 
 ```bash
-loom generate [tipo] [nombre] [flags]
+loom generate [type] [name] [flags]
 ```
 
-**Subcomandos:**
+**Subcommands:**
 
 #### `loom generate module`
 
-Genera un módulo completo con todas sus capas.
+Generates a complete module with all its layers.
 
 ```bash
 loom generate module products
 ```
 
-**Layered genera:**
+**Layered generates:**
 - `internal/app/handlers/products_handler.go`
 - `internal/app/services/products_service.go`
 - `internal/app/repositories/products_repository.go`
 - `internal/app/models/product.go`
 - `internal/app/dtos/products_dto.go`
 
-**Modular genera:**
+**Modular generates:**
 - `internal/modules/products/handler.go`
 - `internal/modules/products/service.go`
 - `internal/modules/products/repository.go`
@@ -242,7 +242,7 @@ loom generate module products
 
 #### `loom generate handler`
 
-Genera solo un handler HTTP.
+Generates only an HTTP handler.
 
 ```bash
 loom generate handler orders
@@ -250,7 +250,7 @@ loom generate handler orders
 
 #### `loom generate service`
 
-Genera solo un service con lógica de negocio.
+Generates only a service with business logic.
 
 ```bash
 loom generate service email
@@ -258,7 +258,7 @@ loom generate service email
 
 #### `loom generate model`
 
-Genera solo un modelo de datos.
+Generates only a data model.
 
 ```bash
 loom generate model Category
@@ -266,69 +266,69 @@ loom generate model Category
 
 #### `loom generate middleware`
 
-Genera middleware HTTP.
+Generates HTTP middleware.
 
 ```bash
 loom generate middleware auth
 ```
 
-**Flags Comunes:**
-- `--force` - Sobrescribe archivos existentes
-- `--dry-run` - Vista previa sin crear archivos
+**Common Flags:**
+- `--force` - Overwrite existing files
+- `--dry-run` - Preview without creating files
 
-**Detección Automática:**
-- Detecta si estás en un proyecto Loom
-- Detecta arquitectura (Layered/Modular)
-- Genera código apropiado para la arquitectura
+**Automatic Detection:**
+- Detects if you're in a Loom project
+- Detects architecture (Layered/Modular)
+- Generates appropriate code for the architecture
 
 ---
 
-### `loom add` - Sistema de Addons
+### `loom add` - Addon System
 
 ```bash
-loom add [categoría] [nombre] [flags]
+loom add [category] [name] [flags]
 ```
 
-**Categorías disponibles:**
+**Available categories:**
 
-#### Routers HTTP
+#### HTTP Routers
 
 ```bash
-# Gin (recomendado para performance)
+# Gin (recommended for performance)
 loom add router gin
 
-# Chi (ligero, compatible con net/http)
+# Chi (lightweight, compatible with net/http)
 loom add router chi
 
-# Echo (minimalista)
+# Echo (minimalist)
 loom add router echo
 ```
 
-**¿Qué hace?**
-1. Actualiza `go.mod` con la nueva dependencia
-2. Reemplaza `internal/server/server.go`
-3. Genera código apropiado para el router
-4. Te advierte que actualices handlers manualmente
+**What does it do?**
+1. Updates `go.mod` with the new dependency
+2. Replaces `internal/server/server.go`
+3. Generates appropriate code for the router
+4. Warns you to update handlers manually
 
-**Nota:** Reemplaza Gorilla Mux por defecto. Usa `--force` para confirmar.
+**Note:** Replaces Gorilla Mux by default. Use `--force` to confirm.
 
 #### ORMs
 
 ```bash
-# GORM (ORM completo)
+# GORM (full ORM)
 loom add orm gorm
 
-# sqlc (generador desde SQL)
+# sqlc (generator from SQL)
 loom add orm sqlc
 ```
 
-**¿Qué hace?**
-1. Añade dependencia del ORM
-2. Crea `internal/database/` con configuración
-3. Actualiza repositories para usar ORM
-4. Configura migraciones (GORM)
+**What does it do?**
+1. Adds ORM dependency
+2. Creates `internal/database/` with configuration
+3. Updates repositories to use ORM
+4. Configures migrations (GORM)
 
-#### Bases de Datos
+#### Databases
 
 ```bash
 # PostgreSQL
@@ -344,13 +344,13 @@ loom add database mongodb
 loom add database redis
 ```
 
-**¿Qué hace?**
-1. Añade driver de la base de datos
-2. Actualiza `.env.example` con variables DB_*
-3. Si añadiste Docker, actualiza `docker-compose.yml`
-4. Crea archivo de configuración en `internal/database/`
+**What does it do?**
+1. Adds database driver
+2. Updates `.env.example` with DB_* variables
+3. If you added Docker, updates `docker-compose.yml`
+4. Creates configuration file in `internal/database/`
 
-#### Autenticación
+#### Authentication
 
 ```bash
 # JWT
@@ -360,12 +360,12 @@ loom add auth jwt
 loom add auth oauth2
 ```
 
-**¿Qué hace JWT?**
-1. Añade dependencia `github.com/golang-jwt/jwt/v5`
-2. Crea `internal/auth/jwt.go` con generación/validación
-3. Crea `internal/auth/middleware.go` para proteger rutas
-4. Crea `internal/handlers/auth_handler.go` (login, register, refresh)
-5. Actualiza `.env.example` con `JWT_SECRET`
+**What does JWT do?**
+1. Adds dependency `github.com/golang-jwt/jwt/v5`
+2. Creates `internal/auth/jwt.go` with generation/validation
+3. Creates `internal/auth/middleware.go` to protect routes
+4. Creates `internal/handlers/auth_handler.go` (login, register, refresh)
+5. Updates `.env.example` with `JWT_SECRET`
 
 #### Infrastructure
 
@@ -374,60 +374,60 @@ loom add auth oauth2
 loom add docker
 ```
 
-**¿Qué hace?**
-1. Crea `Dockerfile` multi-stage optimizado
-2. Crea `.dockerignore`
-3. Crea `docker-compose.yml` con:
-   - Servicio de la app
-   - PostgreSQL (si está configurado)
-   - Volúmenes y networks
-4. Actualiza `Makefile` con comandos Docker
+**What does it do?**
+1. Creates optimized multi-stage `Dockerfile`
+2. Creates `.dockerignore`
+3. Creates `docker-compose.yml` with:
+   - App service
+   - PostgreSQL (if configured)
+   - Volumes and networks
+4. Updates `Makefile` with Docker commands
 
 **Flags:**
-- `--force` - Fuerza instalación (reemplaza existente)
+- `--force` - Force installation (replaces existing)
 
-**Ver addons disponibles:**
+**View available addons:**
 ```bash
 loom add list
 ```
 
 ---
 
-### `loom upgrade` - Actualizar Proyectos
+### `loom upgrade` - Upgrade Projects
 
 ```bash
 loom upgrade [flags]
 ```
 
 **Flags:**
-- `--no-backup` - No crear backup antes de actualizar
-- `--show-changes` - Mostrar cambios sin aplicar
-- `--restore <backup>` - Restaurar un backup específico
+- `--no-backup` - Don't create backup before upgrading
+- `--show-changes` - Show changes without applying
+- `--restore <backup>` - Restore a specific backup
 
-**Flujo de upgrade:**
+**Upgrade flow:**
 
-1. **Detecta versión actual:**
-   - Lee archivo `.loom`
-   - O busca comentarios en `go.mod`
-   - Si no encuentra, asume v0.1.0
+1. **Detects current version:**
+   - Reads `.loom` file
+   - Or looks for comments in `go.mod`
+   - If not found, assumes v0.1.0
 
-2. **Compara con versión del CLI:**
-   - Si proyecto está actualizado, termina
-   - Si CLI es más antiguo, advierte
-   - Si hay upgrade disponible, continúa
+2. **Compares with CLI version:**
+   - If project is up to date, exits
+   - If CLI is older, warns
+   - If upgrade is available, continues
 
-3. **Crea backup (opcional):**
-   - Carpeta `.loom-backups/backup-<timestamp>/`
-   - Copia `internal/`, `cmd/`, `pkg/`, `go.mod`, `.loom`
+3. **Creates backup (optional):**
+   - Folder `.loom-backups/backup-<timestamp>/`
+   - Copies `internal/`, `cmd/`, `pkg/`, `go.mod`, `.loom`
 
-4. **Aplica migraciones incrementales:**
-   - v0.1.0 → v0.2.0: Añade helpers
-   - v0.2.0 → v0.3.0: Actualiza docs
-   - v0.3.0 → v0.4.0: Crea archivo `.loom`
-   - v0.4.0 → v0.5.0: Prepara sistema upgrade
-   - v0.5.0 → v0.6.0: Prepara sistema addons
+4. **Applies incremental migrations:**
+   - v0.1.0 → v0.2.0: Adds helpers
+   - v0.2.0 → v0.3.0: Updates docs
+   - v0.3.0 → v0.4.0: Creates `.loom` file
+   - v0.4.0 → v0.5.0: Prepares upgrade system
+   - v0.5.0 → v0.6.0: Prepares addon system
 
-5. **Actualiza `.loom`:**
+5. **Updates `.loom`:**
    ```
    # Loom Project Configuration
    version=0.6.0
@@ -435,9 +435,9 @@ loom upgrade [flags]
    created_with=loom-cli
    ```
 
-**Archivo `.loom`:**
+**`.loom` file:**
 
-Loom crea este archivo para trackear versión y configuración:
+Loom creates this file to track version and configuration:
 
 ```
 # Loom Project Configuration
@@ -446,13 +446,13 @@ architecture=layered
 created_with=loom-cli
 ```
 
-**Restaurar backup:**
+**Restore backup:**
 
 ```bash
-# Listar backups disponibles
+# List available backups
 ls .loom-backups/
 
-# Restaurar
+# Restore
 loom upgrade --restore backup-20251027-153045
 ```
 
@@ -464,26 +464,26 @@ loom upgrade --restore backup-20251027-153045
 loom version
 ```
 
-Muestra:
-- Versión del CLI de Loom
-- Versión del proyecto actual (si está en proyecto Loom)
-- Estado de actualización
+Shows:
+- Loom CLI version
+- Current project version (if in a Loom project)
+- Update status
 
-**Salida ejemplo:**
+**Example output:**
 
 ```
 🔧 Loom CLI v0.6.0
-📦 Proyecto actual: v0.4.0
+📦 Current project: v0.4.0
 
-⚠️  Tu proyecto usa una versión antigua de Loom
-💡 Actualiza con: loom upgrade
+⚠️  Your project uses an old version of Loom
+💡 Update with: loom upgrade
 ```
 
 ---
 
 ## 📦 Helpers API
 
-Si no usas `--standalone`, tu proyecto incluye `pkg/helpers`.
+If you don't use `--standalone`, your project includes `pkg/helpers`.
 
 ### Response Helpers
 
@@ -516,7 +516,7 @@ type UserDTO struct {
 
 dto := &UserDTO{Name: "Jo", Email: "invalid"}
 
-// Validar
+// Validate
 errors := helpers.ValidateStruct(dto)
 if len(errors) > 0 {
     helpers.RespondError(w, fmt.Errorf("%v", errors), http.StatusBadRequest)
@@ -524,29 +524,29 @@ if len(errors) > 0 {
 }
 ```
 
-**Tags de validación soportadas:**
-- `required` - Campo obligatorio
-- `email` - Email válido
-- `min=N` - Longitud/valor mínimo
-- `max=N` - Longitud/valor máximo
-- `gte=N` - Mayor o igual que
-- `lte=N` - Menor o igual que
-- `oneof=val1 val2` - Uno de los valores
-- `url` - URL válida
-- `uuid` - UUID válido
+**Supported validation tags:**
+- `required` - Required field
+- `email` - Valid email
+- `min=N` - Minimum length/value
+- `max=N` - Maximum length/value
+- `gte=N` - Greater than or equal to
+- `lte=N` - Less than or equal to
+- `oneof=val1 val2` - One of the values
+- `url` - Valid URL
+- `uuid` - Valid UUID
 
 ### Logger
 
 ```go
 logger := helpers.NewLogger()
 
-// Niveles de log
+// Log levels
 logger.Info("Server started", "port", 8080)
 logger.Warn("High memory usage", "usage", 85)
 logger.Error("Database connection failed", "error", err)
 logger.Debug("Query executed", "sql", query, "duration", duration)
 
-// Contexto estructurado
+// Structured context
 logger.Info("User created",
     "user_id", user.ID,
     "username", user.Name,
@@ -554,10 +554,10 @@ logger.Info("User created",
 )
 ```
 
-### Errores Predefinidos
+### Predefined Errors
 
 ```go
-// Errores HTTP comunes
+// Common HTTP errors
 helpers.ErrNotFound          // 404
 helpers.ErrBadRequest        // 400
 helpers.ErrUnauthorized      // 401
@@ -565,7 +565,7 @@ helpers.ErrForbidden         // 403
 helpers.ErrInternalServer    // 500
 helpers.ErrConflict          // 409
 
-// Uso
+// Usage
 if user == nil {
     helpers.RespondError(w, helpers.ErrNotFound, http.StatusNotFound)
     return
@@ -575,16 +575,16 @@ if user == nil {
 ### Context Utilities
 
 ```go
-// Obtener valores del contexto
+// Get values from context
 userID := helpers.GetUserIDFromContext(ctx)
 requestID := helpers.GetRequestIDFromContext(ctx)
 
-// Añadir valores al contexto
+// Add values to context
 ctx = helpers.SetUserIDInContext(ctx, userID)
 ctx = helpers.SetRequestIDInContext(ctx, requestID)
 ```
 
-**Actualizar helpers:**
+**Update helpers:**
 
 ```bash
 go get -u github.com/geomark27/loom-go/pkg/helpers
@@ -593,79 +593,79 @@ go mod tidy
 
 ---
 
-## ✅ Buenas Prácticas
+## ✅ Best Practices
 
-### 1. Estructura de Proyecto
+### 1. Project Structure
 
 **DO:**
-- ✅ Usa `internal/` para código privado
-- ✅ Usa `pkg/` para código reutilizable
-- ✅ Separa configuración en `internal/config/`
-- ✅ Un handler por archivo
-- ✅ Inyección de dependencias
+- ✅ Use `internal/` for private code
+- ✅ Use `pkg/` for reusable code
+- ✅ Separate configuration in `internal/config/`
+- ✅ One handler per file
+- ✅ Dependency injection
 
 **DON'T:**
-- ❌ No pongas lógica de negocio en handlers
-- ❌ No accedas a BD directamente desde handlers
-- ❌ No uses variables globales
+- ❌ Don't put business logic in handlers
+- ❌ Don't access DB directly from handlers
+- ❌ Don't use global variables
 
 ### 2. Handlers
 
 ```go
-// ✅ BIEN: Handler limpio
+// ✅ GOOD: Clean handler
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
     var dto UserDTO
     if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
         helpers.RespondError(w, err, http.StatusBadRequest)
         return
     }
-    
+
     user, err := h.service.CreateUser(&dto)
     if err != nil {
         helpers.RespondError(w, err, http.StatusInternalServerError)
         return
     }
-    
+
     helpers.RespondCreated(w, user, "User created")
 }
 
-// ❌ MAL: Lógica de negocio en handler
+// ❌ BAD: Business logic in handler
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
-    // ... validaciones complejas
-    // ... consultas a BD
-    // ... envío de emails
-    // ... lógica de negocio
+    // ... complex validations
+    // ... DB queries
+    // ... sending emails
+    // ... business logic
 }
 ```
 
 ### 3. Services
 
 ```go
-// ✅ BIEN: Service con lógica de negocio
+// ✅ GOOD: Service with business logic
 type UserService struct {
     repo UserRepository
     emailService EmailService
 }
 
 func (s *UserService) CreateUser(dto *UserDTO) (*User, error) {
-    // Validación de negocio
+    // Business validation
     if exists := s.repo.ExistsByEmail(dto.Email); exists {
         return nil, ErrEmailAlreadyExists
     }
-    
-    // Crear usuario
+
+    // Create user
     user := &User{
         Name: dto.Name,
         Email: dto.Email,
     }
-    
+
     if err := s.repo.Create(user); err != nil {
         return nil, err
     }
-    
-    // Enviar email de bienvenida
+
+    // Send welcome email
     s.emailService.SendWelcome(user.Email)
-    
+
     return user, nil
 }
 ```
@@ -673,7 +673,7 @@ func (s *UserService) CreateUser(dto *UserDTO) (*User, error) {
 ### 4. Repositories
 
 ```go
-// ✅ BIEN: Repository con solo acceso a datos
+// ✅ GOOD: Repository with only data access
 type UserRepository struct {
     db *sql.DB
 }
@@ -687,29 +687,29 @@ func (r *UserRepository) FindByID(id int) (*User, error) {
     // ... query
 }
 
-// ❌ MAL: Repository con lógica de negocio
+// ❌ BAD: Repository with business logic
 func (r *UserRepository) Create(user *User) error {
-    // ❌ Validaciones de negocio
-    // ❌ Envío de emails
-    // ❌ Llamadas a otros servicios
+    // ❌ Business validations
+    // ❌ Sending emails
+    // ❌ Calls to other services
 }
 ```
 
 ### 5. DTOs vs Models
 
-**Models** - Representación interna/BD:
+**Models** - Internal/DB representation:
 ```go
 type User struct {
     ID        int       `json:"id"`
     Name      string    `json:"name"`
     Email     string    `json:"email"`
-    Password  string    `json:"-"`  // Oculto en JSON
+    Password  string    `json:"-"`  // Hidden in JSON
     CreatedAt time.Time `json:"created_at"`
     UpdatedAt time.Time `json:"updated_at"`
 }
 ```
 
-**DTOs** - Transferencia HTTP:
+**DTOs** - HTTP transfer:
 ```go
 type CreateUserDTO struct {
     Name     string `json:"name" validate:"required,min=3"`
@@ -723,17 +723,17 @@ type UpdateUserDTO struct {
 }
 ```
 
-### 6. Manejo de Errores
+### 6. Error Handling
 
 ```go
-// ✅ BIEN: Errores específicos del dominio
+// ✅ GOOD: Domain-specific errors
 var (
     ErrUserNotFound      = errors.New("user not found")
     ErrEmailAlreadyExists = errors.New("email already exists")
     ErrInvalidPassword    = errors.New("invalid password")
 )
 
-// Uso
+// Usage
 user, err := s.repo.FindByID(id)
 if err != nil {
     if err == sql.ErrNoRows {
@@ -746,13 +746,13 @@ if err != nil {
 ### 7. Testing
 
 ```go
-// Usar interfaces para testing
+// Use interfaces for testing
 type UserRepository interface {
     Create(user *User) error
     FindByID(id int) (*User, error)
 }
 
-// Mock en tests
+// Mock in tests
 type MockUserRepository struct {
     CreateFunc func(user *User) error
 }
@@ -766,74 +766,74 @@ func (m *MockUserRepository) Create(user *User) error {
 
 ## 🔧 Troubleshooting
 
-### Proyecto no detectado
+### Project not detected
 
 **Error:**
 ```
-error: no se detectó un proyecto Loom válido
+error: no valid Loom project detected
 ```
 
-**Solución:**
-1. Verifica que estés en el directorio del proyecto
-2. Verifica que exista `internal/app/` o `internal/modules/`
-3. Verifica que exista `go.mod`
+**Solution:**
+1. Verify you're in the project directory
+2. Verify that `internal/app/` or `internal/modules/` exists
+3. Verify that `go.mod` exists
 
-### No se puede cambiar router
+### Cannot change router
 
 **Error:**
 ```
-conflicto detectado: gin está instalado
+conflict detected: gin is installed
 ```
 
-**Solución:**
+**Solution:**
 ```bash
 loom add router chi --force
 ```
 
-### Backup no restaura
+### Backup won't restore
 
 **Error:**
 ```
-backup no encontrado: backup-xxx
+backup not found: backup-xxx
 ```
 
-**Solución:**
-1. Lista backups: `ls .loom-backups/`
-2. Usa el nombre completo: `loom upgrade --restore backup-20251027-153045`
+**Solution:**
+1. List backups: `ls .loom-backups/`
+2. Use the full name: `loom upgrade --restore backup-20251027-153045`
 
-### Helpers no encontrados
+### Helpers not found
 
 **Error:**
 ```
 cannot find package "github.com/geomark27/loom-go/pkg/helpers"
 ```
 
-**Solución:**
+**Solution:**
 ```bash
 go get github.com/geomark27/loom-go/pkg/helpers
 go mod tidy
 ```
 
-### Puerto en uso
+### Port in use
 
 **Error:**
 ```
 listen tcp :8080: bind: address already in use
 ```
 
-**Solución:**
-1. Cambiar puerto en `.env`: `PORT=8081`
-2. O matar proceso: `lsof -ti:8080 | xargs kill`
+**Solution:**
+1. Change port in `.env`: `PORT=8081`
+2. Or kill process: `lsof -ti:8080 | xargs kill`
 
 ---
 
-## 📞 Soporte
+## 📞 Support
 
-¿Problemas? ¿Preguntas?
+Problems? Questions?
 
 - **Issues**: [github.com/geomark27/loom-go/issues](https://github.com/geomark27/loom-go/issues)
 - **Discussions**: [github.com/geomark27/loom-go/discussions](https://github.com/geomark27/loom-go/discussions)
 
 ---
 
-**Última actualización:** 27 de octubre de 2025 - v0.6.0
+**Last updated:** October 27, 2025 - v0.6.0

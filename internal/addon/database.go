@@ -2,14 +2,14 @@ package addon
 
 import "fmt"
 
-// DatabaseAddon gestiona la configuración de bases de datos
+// DatabaseAddon manages database configuration
 type DatabaseAddon struct {
 	projectRoot  string
 	architecture string
 	dbType       string // "postgres", "mysql", "mongodb", "redis"
 }
 
-// NewDatabaseAddon crea un nuevo addon de base de datos
+// NewDatabaseAddon creates a new database addon
 func NewDatabaseAddon(projectRoot, architecture, dbType string) *DatabaseAddon {
 	return &DatabaseAddon{
 		projectRoot:  projectRoot,
@@ -24,10 +24,10 @@ func (d *DatabaseAddon) Name() string {
 
 func (d *DatabaseAddon) Description() string {
 	descriptions := map[string]string{
-		"postgres": "PostgreSQL - Base de datos relacional robusta",
-		"mysql":    "MySQL - Base de datos relacional popular",
-		"mongodb":  "MongoDB - Base de datos NoSQL orientada a documentos",
-		"redis":    "Redis - Base de datos en memoria para cache",
+		"postgres": "PostgreSQL - Robust relational database",
+		"mysql":    "MySQL - Popular relational database",
+		"mongodb":  "MongoDB - Document-oriented NoSQL database",
+		"redis":    "Redis - In-memory database for caching",
 	}
 	return descriptions[d.dbType]
 }
@@ -46,12 +46,12 @@ func (d *DatabaseAddon) IsInstalled() (bool, error) {
 }
 
 func (d *DatabaseAddon) CanInstall() (bool, string, error) {
-	// Las bases de datos pueden coexistir
+	// Databases can coexist
 	return true, "", nil
 }
 
 func (d *DatabaseAddon) GetConflicts() []string {
-	return []string{} // Las bases de datos no tienen conflictos
+	return []string{} // Databases have no conflicts
 }
 
 func (d *DatabaseAddon) Install(force bool) error {
@@ -65,19 +65,19 @@ func (d *DatabaseAddon) Install(force bool) error {
 	case "redis":
 		return d.installRedis()
 	default:
-		return fmt.Errorf("base de datos no soportada: %s", d.dbType)
+		return fmt.Errorf("unsupported database: %s", d.dbType)
 	}
 }
 
 func (d *DatabaseAddon) installPostgres() error {
-	fmt.Println("   📦 Configurando PostgreSQL...")
+	fmt.Println("   📦 Configuring PostgreSQL...")
 
-	// Añadir driver
+	// Add driver
 	if err := UpdateGoMod("github.com/lib/pq", "v1.10.9"); err != nil {
 		return err
 	}
 
-	// Actualizar .env.example
+	// Update .env.example
 	envVars := map[string]string{
 		"DB_HOST":     "localhost",
 		"DB_PORT":     "5432",
@@ -91,35 +91,35 @@ func (d *DatabaseAddon) installPostgres() error {
 		return err
 	}
 
-	fmt.Println("   ✅ PostgreSQL configurado")
-	fmt.Println("   💡 Ejecuta 'loom add docker' para añadir PostgreSQL a docker-compose")
+	fmt.Println("   ✅ PostgreSQL configured")
+	fmt.Println("   💡 Run 'loom add docker' to add PostgreSQL to docker-compose")
 
 	return nil
 }
 
 func (d *DatabaseAddon) installMySQL() error {
-	fmt.Println("   📦 Configurando MySQL...")
+	fmt.Println("   📦 Configuring MySQL...")
 
-	// TODO: Implementar MySQL
-	fmt.Println("   ⚠️  Implementación completa próximamente")
+	// TODO: Implement MySQL
+	fmt.Println("   ⚠️  Full implementation coming soon")
 
 	return nil
 }
 
 func (d *DatabaseAddon) installMongoDB() error {
-	fmt.Println("   📦 Configurando MongoDB...")
+	fmt.Println("   📦 Configuring MongoDB...")
 
-	// TODO: Implementar MongoDB
-	fmt.Println("   ⚠️  Implementación completa próximamente")
+	// TODO: Implement MongoDB
+	fmt.Println("   ⚠️  Full implementation coming soon")
 
 	return nil
 }
 
 func (d *DatabaseAddon) installRedis() error {
-	fmt.Println("   📦 Configurando Redis...")
+	fmt.Println("   📦 Configuring Redis...")
 
-	// TODO: Implementar Redis
-	fmt.Println("   ⚠️  Implementación completa próximamente")
+	// TODO: Implement Redis
+	fmt.Println("   ⚠️  Full implementation coming soon")
 
 	return nil
 }

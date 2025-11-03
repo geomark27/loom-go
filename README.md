@@ -1,204 +1,204 @@
-# 🧶 Loom - El Tejedor de Proyectos Go
+# 🧶 Loom - The Go Project Weaver
 
 [![Go Version](https://img.shields.io/badge/Go-1.23%2B-00ADD8?style=flat&logo=go)](https://golang.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.3-green.svg)](https://github.com/geomark27/loom-go/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/geomark27/loom-go)](https://goreportcard.com/report/github.com/geomark27/loom-go)
 
-> **Loom** no es un framework, es un **tejedor de código**. Genera proyectos Go profesionales en segundos y te da las herramientas para extenderlos sin límites.
+> **Loom** is not a framework, it's a **code weaver**. Generate professional Go projects in seconds and get the tools to extend them without limits.
 
-**Loom** es una herramienta CLI que automatiza la creación y extensión de proyectos backend en Go con arquitectura profesional. Piensa en él como el `create-react-app` o `nest new` del ecosistema Go.
+**Loom** is a CLI tool that automates the creation and extension of backend Go projects with professional architecture. Think of it as the `create-react-app` or `nest new` of the Go ecosystem.
 
-## 🚀 Características Principales
+## 🚀 Key Features
 
-- ⚡ **Crea proyectos completos en 30 segundos**
-- 🏗️ **Arquitectura dual**: Layered (simple) o Modular (escalable)
-- 🔧 **Genera componentes individuales** en proyectos existentes
-- ⬆️ **Actualiza proyectos** sin perder tus cambios
-- 🎨 **Añade tecnologías** (routers, ORMs, databases) on-the-fly
-- 📦 **Helpers opcionales** o código 100% standalone
-- 🚫 **Sin overhead en runtime** - Solo genera código
+- ⚡ **Create complete projects in 30 seconds**
+- 🏗️ **Dual architecture**: Layered (simple) or Modular (scalable)
+- 🔧 **Generate individual components** in existing projects
+- ⬆️ **Update projects** without losing your changes
+- 🎨 **Add technologies** (routers, ORMs, databases) on-the-fly
+- 📦 **Optional helpers** or 100% standalone code
+- 🚫 **No runtime overhead** - Just generates code
 
-## 📦 Instalación
+## 📦 Installation
 
 ```bash
-# Instalar globalmente
+# Install globally
 go install github.com/geomark27/loom-go/cmd/loom@latest
 
-# Verificar instalación
+# Verify installation
 loom --version
 ```
 
-## 🎯 Inicio Rápido
+## 🎯 Quick Start
 
-### Crear un Proyecto
+### Create a Project
 
 ```bash
-# Con helpers (recomendado para desarrollo rápido)
-loom new mi-api
+# With helpers (recommended for rapid development)
+loom new my-api
 
-# O sin helpers (100% independiente)
-loom new mi-api --standalone
+# Or without helpers (100% independent)
+loom new my-api --standalone
 
-# Con arquitectura modular
-loom new mi-app --modular
+# With modular architecture
+loom new my-app --modular
 ```
 
-### Ejecutar
+### Run
 
 ```bash
-cd mi-api
+cd my-api
 go mod tidy
-go run cmd/mi-api/main.go
-# 🚀 Servidor corriendo en http://localhost:8080
+go run cmd/my-api/main.go
+# 🚀 Server running at http://localhost:8080
 ```
 
-### Probar
+### Test
 
 ```bash
 # Health check
 curl http://localhost:8080/api/v1/health
 
-# CRUD de usuarios (ejemplo incluido)
+# Users CRUD (included example)
 curl http://localhost:8080/api/v1/users
 ```
 
-## 🎨 Comandos Disponibles
+## 🎨 Available Commands
 
-### `loom new` - Crear proyectos
+### `loom new` - Create projects
 
 ```bash
-loom new mi-api              # Proyecto Layered con helpers
-loom new mi-app --modular    # Proyecto Modular por dominios
-loom new api --standalone    # Sin helpers (código 100% propio)
+loom new my-api              # Layered project with helpers
+loom new my-app --modular    # Modular project by domains
+loom new api --standalone    # Without helpers (100% own code)
 ```
 
-**Arquitecturas disponibles:**
-- **Layered** (por defecto): Simple, ideal para APIs REST
-- **Modular**: Escalable, ideal para aplicaciones grandes con múltiples dominios
+**Available architectures:**
+- **Layered** (default): Simple, ideal for REST APIs
+- **Modular**: Scalable, ideal for large applications with multiple domains
 
-### `loom generate` - Generar componentes
+### `loom generate` - Generate components
 
 ```bash
-# Dentro de un proyecto Loom existente
-loom generate module products    # Módulo completo
-loom generate handler orders     # Solo handler
-loom generate service email      # Solo service
-loom generate model Category     # Solo model
-loom generate middleware auth    # Middleware HTTP
+# Inside an existing Loom project
+loom generate module products    # Complete module
+loom generate handler orders     # Handler only
+loom generate service email      # Service only
+loom generate model Category     # Model only
+loom generate middleware auth    # HTTP middleware
 
-# Flags útiles
-loom generate module users --dry-run  # Vista previa
-loom generate handler api --force     # Sobrescribir
+# Useful flags
+loom generate module users --dry-run  # Preview
+loom generate handler api --force     # Overwrite
 ```
 
-### `loom add` - Añadir tecnologías
+### `loom add` - Add technologies
 
 ```bash
-# Cambiar router HTTP
-loom add router gin          # Reemplazar Gorilla Mux por Gin
-loom add router chi          # O por Chi
-loom add router echo         # O por Echo
+# Change HTTP router
+loom add router gin          # Replace Gorilla Mux with Gin
+loom add router chi          # Or with Chi
+loom add router echo         # Or with Echo
 
-# Añadir ORM
-loom add orm gorm            # Configurar GORM
+# Add ORM
+loom add orm gorm            # Configure GORM
 
-# Configurar base de datos
-loom add database postgres   # PostgreSQL con docker-compose
+# Configure database
+loom add database postgres   # PostgreSQL with docker-compose
 loom add database mysql      # MySQL
 loom add database mongodb    # MongoDB
 loom add database redis      # Redis
 
-# Añadir autenticación
+# Add authentication
 loom add auth jwt            # JWT Authentication
 loom add auth oauth2         # OAuth 2.0
 
 # Infrastructure
 loom add docker              # Dockerfile + docker-compose.yml
 
-# Ver todos los addons disponibles
+# View all available addons
 loom add list
 ```
 
-### `loom upgrade` - Actualizar proyectos
+### `loom upgrade` - Update projects
 
 ```bash
-loom version                 # Ver versión actual
-loom upgrade --show-changes  # Ver qué cambiaría
-loom upgrade                 # Actualizar (con backup automático)
-loom upgrade --no-backup     # Actualizar sin backup
+loom version                 # View current version
+loom upgrade --show-changes  # See what would change
+loom upgrade                 # Update (with automatic backup)
+loom upgrade --no-backup     # Update without backup
 
-# Si algo sale mal
+# If something goes wrong
 loom upgrade --restore backup-20251027-153045
 ```
 
-## 📦 Helpers Opcionales
+## 📦 Optional Helpers
 
-Si no usas `--standalone`, tu proyecto incluye helpers reutilizables:
+If you don't use `--standalone`, your project includes reusable helpers:
 
 ```go
 import "github.com/geomark27/loom-go/pkg/helpers"
 
-// HTTP Responses estandarizadas
+// Standardized HTTP responses
 helpers.RespondSuccess(w, data, "Success")
 helpers.RespondError(w, err, http.StatusBadRequest)
 helpers.RespondCreated(w, user, "User created")
 
-// Validación automática
+// Automatic validation
 type UserDTO struct {
     Name  string `json:"name" validate:"required,min=3"`
     Email string `json:"email" validate:"required,email"`
 }
 errors := helpers.ValidateStruct(userDTO)
 
-// Logging estructurado
+// Structured logging
 logger := helpers.NewLogger()
 logger.Info("User created", "user_id", user.ID)
 logger.Error("Database error", "error", err)
 ```
 
-Actualizar helpers:
+Update helpers:
 ```bash
 go get -u github.com/geomark27/loom-go/pkg/helpers
 ```
 
-## 🏗️ Estructura de Proyectos
+## 🏗️ Project Structure
 
-### Arquitectura Layered
+### Layered Architecture
 
 ```
-mi-api/
+my-api/
 ├── cmd/
-│   └── mi-api/
-│       └── main.go              # Punto de entrada
+│   └── my-api/
+│       └── main.go              # Entry point
 ├── internal/
 │   ├── app/
 │   │   ├── handlers/            # HTTP handlers
-│   │   ├── services/            # Lógica de negocio
-│   │   ├── repositories/        # Acceso a datos
-│   │   ├── models/              # Modelos de dominio
+│   │   ├── services/            # Business logic
+│   │   ├── repositories/        # Data access
+│   │   ├── models/              # Domain models
 │   │   ├── dtos/                # Data Transfer Objects
-│   │   └── middleware/          # Middlewares HTTP
-│   ├── config/                  # Configuración
-│   └── server/                  # Servidor HTTP
+│   │   └── middleware/          # HTTP middlewares
+│   ├── config/                  # Configuration
+│   └── server/                  # HTTP server
 ├── pkg/
-│   └── helpers/                 # Utilidades (opcional)
+│   └── helpers/                 # Utilities (optional)
 ├── docs/
-│   └── API.md                   # Documentación
+│   └── API.md                   # Documentation
 ├── .env.example
 ├── Makefile
 └── README.md
 ```
 
-### Arquitectura Modular
+### Modular Architecture
 
 ```
-mi-app/
+my-app/
 ├── cmd/
-│   └── mi-app/
+│   └── my-app/
 │       └── main.go
 ├── internal/
-│   ├── modules/                 # Módulos de dominio
+│   ├── modules/                 # Domain modules
 │   │   ├── users/
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
@@ -209,136 +209,136 @@ mi-app/
 │   │   │   ├── validator.go
 │   │   │   └── errors.go
 │   │   └── products/
-│   │       └── ... (misma estructura)
-│   └── platform/                # Infraestructura compartida
+│   │       └── ... (same structure)
+│   └── platform/                # Shared infrastructure
 │       ├── server/
 │       ├── config/
-│       └── eventbus/            # Comunicación entre módulos
+│       └── eventbus/            # Inter-module communication
 ├── pkg/
 │   └── helpers/
 └── ...
 ```
 
-## 🔌 API Endpoints Incluidos
+## 🔌 Included API Endpoints
 
-Todos los proyectos generados incluyen:
+All generated projects include:
 
 ### Health Checks
-- `GET /api/v1/health` - Estado del servicio
-- `GET /api/v1/health/ready` - Verificación de preparación
+- `GET /api/v1/health` - Service status
+- `GET /api/v1/health/ready` - Readiness check
 
-### CRUD de Usuarios (Ejemplo)
-- `GET /api/v1/users` - Listar usuarios
-- `GET /api/v1/users/{id}` - Obtener usuario
-- `POST /api/v1/users` - Crear usuario
-- `PUT /api/v1/users/{id}` - Actualizar usuario
-- `DELETE /api/v1/users/{id}` - Eliminar usuario
+### Users CRUD (Example)
+- `GET /api/v1/users` - List users
+- `GET /api/v1/users/{id}` - Get user
+- `POST /api/v1/users` - Create user
+- `PUT /api/v1/users/{id}` - Update user
+- `DELETE /api/v1/users/{id}` - Delete user
 
-## 💻 Makefile Incluido
+## 💻 Included Makefile
 
-Todos los proyectos tienen estos comandos:
+All projects have these commands:
 
 ```bash
-make help           # Ver todos los comandos
-make run            # Ejecutar aplicación
-make build          # Compilar
+make help           # View all commands
+make run            # Run application
+make build          # Compile
 make test           # Tests
-make test-coverage  # Tests con cobertura
-make fmt            # Formatear código
-make vet            # Análisis estático
-make clean          # Limpiar archivos
+make test-coverage  # Tests with coverage
+make fmt            # Format code
+make vet            # Static analysis
+make clean          # Clean files
 
-# Si añadiste Docker:
-make docker-build   # Construir imagen
-make docker-up      # Levantar containers
-make docker-down    # Detener containers
-make docker-logs    # Ver logs
+# If you added Docker:
+make docker-build   # Build image
+make docker-up      # Start containers
+make docker-down    # Stop containers
+make docker-logs    # View logs
 ```
 
-## 🎨 Filosofía
+## 🎨 Philosophy
 
-### "Cerrado para modificación, Abierto para extensión"
+### "Closed for modification, Open for extension"
 
-- **No es un framework** - Solo genera código, sin overhead en runtime
-- **Idiomático** - Respeta las convenciones de Go
-- **Sin magia** - Código explícito y entendible
-- **Extensible** - Fácil agregar nuevas funcionalidades
+- **Not a framework** - Just generates code, no runtime overhead
+- **Idiomatic** - Respects Go conventions
+- **No magic** - Explicit and understandable code
+- **Extensible** - Easy to add new features
 
-### Inspiración
+### Inspiration
 
-Loom lleva la experiencia de frameworks como **NestJS**, **Laravel** y **Spring Boot** al ecosistema Go, manteniendo su simplicidad y rendimiento.
+Loom brings the experience of frameworks like **NestJS**, **Laravel**, and **Spring Boot** to the Go ecosystem, while maintaining its simplicity and performance.
 
-## 📚 Ejemplos Reales
+## 📚 Real-World Examples
 
-### Crear un e-commerce
+### Create an e-commerce
 
 ```bash
-# 1. Crear proyecto base
+# 1. Create base project
 loom new ecommerce --modular
 cd ecommerce
 
-# 2. Generar módulos de dominio
+# 2. Generate domain modules
 loom generate module products
 loom generate module orders
 loom generate module payments
 loom generate module customers
 
-# 3. Añadir PostgreSQL
+# 3. Add PostgreSQL
 loom add database postgres
 
-# 4. Añadir autenticación JWT
+# 4. Add JWT authentication
 loom add auth jwt
 
-# 5. Añadir Docker
+# 5. Add Docker
 loom add docker
 
-# 6. Ejecutar
+# 6. Run
 docker-compose up -d
 ```
 
-### Migrar de Gorilla Mux a Gin
+### Migrate from Gorilla Mux to Gin
 
 ```bash
-cd mi-proyecto-existente
-loom add router gin --force  # Reemplaza el router actual
+cd my-existing-project
+loom add router gin --force  # Replaces current router
 go mod tidy
-# Actualizar handlers manualmente para usar gin.Context
+# Manually update handlers to use gin.Context
 ```
 
-## 📖 Documentación
+## 📖 Documentation
 
-- **[DOCS.md](DOCS.md)** - Documentación técnica completa
-- **[CHANGELOG.md](CHANGELOG.md)** - Historial de versiones y cambios
+- **[DOCS.md](DOCS.md)** - Complete technical documentation
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
 
-## 🤝 Contribuir
+## 🤝 Contributing
 
-¡Las contribuciones son bienvenidas!
+Contributions are welcome!
 
-1. Fork el proyecto
-2. Crea tu branch (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add AmazingFeature'`)
+1. Fork the project
+2. Create your branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
 4. Push (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+5. Open a Pull Request
 
-## 📝 Licencia
+## 📝 License
 
-MIT License - ve [LICENSE](LICENSE) para detalles.
+MIT License - see [LICENSE](LICENSE) for details.
 
-## 🙏 Inspiración
+## 🙏 Inspiration
 
 - [golang-standards/project-layout](https://github.com/golang-standards/project-layout)
 - [NestJS CLI](https://nestjs.com/)
 - [Laravel Artisan](https://laravel.com/docs/artisan)
 - [Spring Boot CLI](https://spring.io/projects/spring-boot)
 
-## 📞 Contacto
+## 📞 Contact
 
-- **Autor**: Marcos
+- **Author**: Marcos
 - **GitHub**: [@geomark27](https://github.com/geomark27)
-- **Repositorio**: [loom-go](https://github.com/geomark27/loom-go)
+- **Repository**: [loom-go](https://github.com/geomark27/loom-go)
 
 ---
 
-**¿Te gusta Loom?** Dale una ⭐ en GitHub!
+**Do you like Loom?** Give it a ⭐ on GitHub!
 
-Hecho con ❤️ y ☕ por la comunidad Go
+Made with ❤️ and ☕ by the Go community

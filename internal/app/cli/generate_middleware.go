@@ -8,15 +8,15 @@ import (
 )
 
 var generateMiddlewareCmd = &cobra.Command{
-	Use:   "middleware [nombre]",
-	Short: "Genera un middleware HTTP",
-	Long: `Genera un middleware para interceptar peticiones HTTP.
+	Use:   "middleware [name]",
+	Short: "Generates an HTTP middleware",
+	Long: `Generates a middleware to intercept HTTP requests.
 
-El archivo se generará en la ubicación apropiada según la arquitectura:
-  - Layered: internal/app/middleware/{nombre}.go
-  - Modular: internal/middleware/{nombre}.go
+The file will be generated in the appropriate location according to the architecture:
+  - Layered: internal/app/middleware/{name}.go
+  - Modular: internal/middleware/{name}.go
 
-Ejemplos:
+Examples:
   loom generate middleware auth
   loom generate middleware logger --force`,
 	Aliases: []string{"mw"},
@@ -35,39 +35,39 @@ func runGenerateMiddleware(cmd *cobra.Command, args []string) error {
 
 	projectInfo, err := generator.DetectProject()
 	if err != nil {
-		return fmt.Errorf("error: no se detectó un proyecto Loom válido. %w", err)
+		return fmt.Errorf("error: no valid Loom project detected. %w", err)
 	}
 
 	if err := generator.ValidateComponentName(name); err != nil {
-		return fmt.Errorf("nombre de middleware inválido: %w", err)
+		return fmt.Errorf("invalid middleware name: %w", err)
 	}
 
-	fmt.Printf("🔍 Proyecto: %s (%s)\n", projectInfo.Name, projectInfo.Architecture)
-	fmt.Printf("📦 Generando middleware: %s\n\n", name)
+	fmt.Printf("🔍 Project: %s (%s)\n", projectInfo.Name, projectInfo.Architecture)
+	fmt.Printf("📦 Generating middleware: %s\n\n", name)
 
 	gen := generator.NewModuleGenerator(projectInfo)
 	files, err := gen.GenerateMiddleware(name, force, dryRun)
 	if err != nil {
-		return fmt.Errorf("error al generar middleware: %w", err)
+		return fmt.Errorf("error generating middleware: %w", err)
 	}
 
 	if dryRun {
-		fmt.Println("📋 Archivo que se generaría:")
+		fmt.Println("📋 File that would be generated:")
 		for _, file := range files {
 			fmt.Printf("   ✨ %s\n", file)
 		}
-		fmt.Println("\n💡 Ejecuta sin --dry-run para crear el archivo")
+		fmt.Println("\n💡 Run without --dry-run to create the file")
 		return nil
 	}
 
-	fmt.Println("✅ Middleware generado exitosamente!")
-	fmt.Println("\n📝 Archivo creado:")
+	fmt.Println("✅ Middleware generated successfully!")
+	fmt.Println("\n📝 File created:")
 	for _, file := range files {
 		fmt.Printf("   ✨ %s\n", file)
 	}
 
-	fmt.Println("\n📝 Próximo paso:")
-	fmt.Println("   Registra el middleware en tu router o en rutas específicas")
+	fmt.Println("\n📝 Next step:")
+	fmt.Println("   Register the middleware in your router or on specific routes")
 
 	return nil
 }

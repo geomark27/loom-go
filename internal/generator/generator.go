@@ -7,58 +7,58 @@ import (
 	"text/template"
 )
 
-// ProjectConfig contiene la configuración para generar un proyecto
+// ProjectConfig contains the configuration for generating a project
 type ProjectConfig struct {
-	Name         string // Nombre del proyecto
-	Path         string // Ruta donde se creará el proyecto
-	ModuleName   string // Nombre del módulo Go
-	Description  string // Descripción del proyecto
-	UseHelpers   bool   // Si true, incluye los helpers de Loom en el proyecto
-	IsModular    bool   // Si true, usa arquitectura modular en lugar de por capas
-	Architecture string // "layered" o "modular"
+	Name         string // Project name
+	Path         string // Path where the project will be created
+	ModuleName   string // Go module name
+	Description  string // Project description
+	UseHelpers   bool   // If true, includes Loom helpers in the project
+	IsModular    bool   // If true, uses modular architecture instead of layered
+	Architecture string // "layered" or "modular"
 }
 
-// Generator es responsable de generar proyectos
+// Generator is responsible for generating projects
 type Generator struct {
 	templates map[string]string
 }
 
-// New crea una nueva instancia del generator
+// New creates a new generator instance
 func New() *Generator {
 	return &Generator{
 		templates: getTemplates(),
 	}
 }
 
-// GenerateProject genera un nuevo proyecto basado en la configuración
+// GenerateProject generates a new project based on the configuration
 func (g *Generator) GenerateProject(config *ProjectConfig) error {
-	// Crear el directorio raíz del proyecto
+	// Create the project root directory
 	if err := os.MkdirAll(config.Path, 0755); err != nil {
-		return fmt.Errorf("error creando directorio del proyecto: %w", err)
+		return fmt.Errorf("error creating project directory: %w", err)
 	}
 
-	// Crear estructura de directorios según arquitectura
+	// Create directory structure based on architecture
 	dirs := g.getDirectories(config)
 
 	for _, dir := range dirs {
 		if err := os.MkdirAll(dir, 0755); err != nil {
-			return fmt.Errorf("error creando directorio %s: %w", dir, err)
+			return fmt.Errorf("error creating directory %s: %w", dir, err)
 		}
 	}
 
-	// Generar archivos desde plantillas según arquitectura
+	// Generate files from templates based on architecture
 	files := g.getFileMapping(config)
 
 	for filePath, templateName := range files {
 		if err := g.generateFile(filePath, templateName, config); err != nil {
-			return fmt.Errorf("error generando archivo %s: %w", filePath, err)
+			return fmt.Errorf("error generating file %s: %w", filePath, err)
 		}
 	}
 
 	return nil
 }
 
-// getDirectories retorna los directorios a crear según la arquitectura
+// getDirectories returns the directories to create based on the architecture
 func (g *Generator) getDirectories(config *ProjectConfig) []string {
 	if config.IsModular {
 		return g.getModularDirectories(config)
@@ -66,62 +66,62 @@ func (g *Generator) getDirectories(config *ProjectConfig) []string {
 	return g.getLayeredDirectories(config)
 }
 
-// getLayeredDirectories retorna los directorios para arquitectura por capas
+// getLayeredDirectories returns the directories for layered architecture
 func (g *Generator) getLayeredDirectories(config *ProjectConfig) []string {
 	return []string{
 		// cmd
 		filepath.Join(config.Path, "cmd", config.Name),
 
-		// internal/app - Lógica de negocio
+		// internal/app - Business logic
 		filepath.Join(config.Path, "internal", "app", "handlers"),
 		filepath.Join(config.Path, "internal", "app", "services"),
 		filepath.Join(config.Path, "internal", "app", "repositories"),
 		filepath.Join(config.Path, "internal", "app", "models"),
 		filepath.Join(config.Path, "internal", "app", "dtos"),
 
-		// internal/platform - Infraestructura técnica
+		// internal/platform - Technical infrastructure
 		filepath.Join(config.Path, "internal", "platform", "config"),
 		filepath.Join(config.Path, "internal", "platform", "server"),
 		filepath.Join(config.Path, "internal", "platform", "database"),
 
-		// internal/shared - Utilidades transversales
+		// internal/shared - Cross-cutting utilities
 		filepath.Join(config.Path, "internal", "shared", "middleware"),
 		filepath.Join(config.Path, "internal", "shared", "response"),
 		filepath.Join(config.Path, "internal", "shared", "errors"),
 
-		// otros
+		// other
 		filepath.Join(config.Path, "pkg"),
 		filepath.Join(config.Path, "docs"),
 	}
 }
 
-// getModularDirectories retorna los directorios para arquitectura modular
+// getModularDirectories returns the directories for modular architecture
 func (g *Generator) getModularDirectories(config *ProjectConfig) []string {
 	return []string{
 		// cmd
 		filepath.Join(config.Path, "cmd", config.Name),
 
-		// internal/modules - Módulos de dominio
+		// internal/modules - Domain modules
 		filepath.Join(config.Path, "internal", "modules", "users"),
 
-		// internal/platform - Infraestructura técnica
+		// internal/platform - Technical infrastructure
 		filepath.Join(config.Path, "internal", "platform", "config"),
 		filepath.Join(config.Path, "internal", "platform", "server"),
 		filepath.Join(config.Path, "internal", "platform", "events"),
 		filepath.Join(config.Path, "internal", "platform", "database"),
 
-		// internal/shared - Utilidades transversales
+		// internal/shared - Cross-cutting utilities
 		filepath.Join(config.Path, "internal", "shared", "middleware"),
 		filepath.Join(config.Path, "internal", "shared", "response"),
 		filepath.Join(config.Path, "internal", "shared", "errors"),
 
-		// otros
+		// other
 		filepath.Join(config.Path, "pkg"),
 		filepath.Join(config.Path, "docs"),
 	}
 }
 
-// getFileMapping retorna el mapeo de archivos según la arquitectura
+// getFileMapping returns the file mapping based on the architecture
 func (g *Generator) getFileMapping(config *ProjectConfig) map[string]string {
 	if config.IsModular {
 		return g.getModularFiles(config)
@@ -129,10 +129,10 @@ func (g *Generator) getFileMapping(config *ProjectConfig) map[string]string {
 	return g.getLayeredFiles(config)
 }
 
-// getLayeredFiles retorna el mapeo de archivos para arquitectura por capas
+// getLayeredFiles returns the file mapping for layered architecture
 func (g *Generator) getLayeredFiles(config *ProjectConfig) map[string]string {
 	return map[string]string{
-		// Archivos raíz del proyecto
+		// Project root files
 		filepath.Join(config.Path, "go.mod"):       "go.mod.tmpl",
 		filepath.Join(config.Path, "README.md"):    "README.md.tmpl",
 		filepath.Join(config.Path, ".gitignore"):   ".gitignore.tmpl",
@@ -163,10 +163,10 @@ func (g *Generator) getLayeredFiles(config *ProjectConfig) map[string]string {
 	}
 }
 
-// getModularFiles retorna el mapeo de archivos para arquitectura modular
+// getModularFiles returns the file mapping for modular architecture
 func (g *Generator) getModularFiles(config *ProjectConfig) map[string]string {
 	return map[string]string{
-		// Archivos raíz del proyecto
+		// Project root files
 		filepath.Join(config.Path, "go.mod"):       "go.mod.tmpl",
 		filepath.Join(config.Path, "README.md"):    "README.md.tmpl",
 		filepath.Join(config.Path, ".gitignore"):   ".gitignore.tmpl",
@@ -200,26 +200,26 @@ func (g *Generator) getModularFiles(config *ProjectConfig) map[string]string {
 	}
 }
 
-// generateFile genera un archivo específico usando una plantilla
+// generateFile generates a specific file using a template
 func (g *Generator) generateFile(filePath, templateName string, config *ProjectConfig) error {
 	templateContent, exists := g.templates[templateName]
 	if !exists {
-		return fmt.Errorf("plantilla %s no encontrada", templateName)
+		return fmt.Errorf("template %s not found", templateName)
 	}
 
 	tmpl, err := template.New(templateName).Parse(templateContent)
 	if err != nil {
-		return fmt.Errorf("error parseando plantilla %s: %w", templateName, err)
+		return fmt.Errorf("error parsing template %s: %w", templateName, err)
 	}
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		return fmt.Errorf("error creando archivo %s: %w", filePath, err)
+		return fmt.Errorf("error creating file %s: %w", filePath, err)
 	}
 	defer file.Close()
 
 	if err := tmpl.Execute(file, config); err != nil {
-		return fmt.Errorf("error ejecutando plantilla %s: %w", templateName, err)
+		return fmt.Errorf("error executing template %s: %w", templateName, err)
 	}
 
 	return nil

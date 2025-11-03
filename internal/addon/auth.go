@@ -2,14 +2,14 @@ package addon
 
 import "fmt"
 
-// AuthAddon gestiona sistemas de autenticación
+// AuthAddon manages authentication systems
 type AuthAddon struct {
 	projectRoot  string
 	architecture string
 	authType     string // "jwt", "oauth2"
 }
 
-// NewAuthAddon crea un nuevo addon de autenticación
+// NewAuthAddon creates a new authentication addon
 func NewAuthAddon(projectRoot, architecture, authType string) *AuthAddon {
 	return &AuthAddon{
 		projectRoot:  projectRoot,
@@ -24,8 +24,8 @@ func (a *AuthAddon) Name() string {
 
 func (a *AuthAddon) Description() string {
 	descriptions := map[string]string{
-		"jwt":    "JSON Web Tokens para autenticación stateless",
-		"oauth2": "OAuth 2.0 para autenticación con terceros",
+		"jwt":    "JSON Web Tokens for stateless authentication",
+		"oauth2": "OAuth 2.0 for third-party authentication",
 	}
 	return descriptions[a.authType]
 }
@@ -37,12 +37,12 @@ func (a *AuthAddon) IsInstalled() (bool, error) {
 }
 
 func (a *AuthAddon) CanInstall() (bool, string, error) {
-	// Verificar que no haya otro sistema de auth
+	// Check that there's no other auth system
 	detector := NewProjectDetector(a.projectRoot)
 	currentAuth := detector.DetectAuth()
 
 	if currentAuth != "none" && currentAuth != a.authType {
-		return false, fmt.Sprintf("Ya tienes %s instalado. Usa --force para reemplazar", currentAuth), nil
+		return false, fmt.Sprintf("You already have %s installed. Use --force to replace", currentAuth), nil
 	}
 
 	return true, "", nil
@@ -66,19 +66,19 @@ func (a *AuthAddon) Install(force bool) error {
 	case "oauth2":
 		return a.installOAuth2()
 	default:
-		return fmt.Errorf("sistema de auth no soportado: %s", a.authType)
+		return fmt.Errorf("unsupported auth system: %s", a.authType)
 	}
 }
 
 func (a *AuthAddon) installJWT() error {
-	fmt.Println("   📦 Instalando JWT Auth...")
+	fmt.Println("   📦 Installing JWT Auth...")
 
-	// Añadir dependencia
+	// Add dependency
 	if err := UpdateGoMod("github.com/golang-jwt/jwt/v5", "v5.2.0"); err != nil {
 		return err
 	}
 
-	// Actualizar .env.example
+	// Update .env.example
 	envVars := map[string]string{
 		"JWT_SECRET":     "your-secret-key-change-this-in-production",
 		"JWT_EXPIRATION": "24h",
@@ -88,10 +88,10 @@ func (a *AuthAddon) installJWT() error {
 		return err
 	}
 
-	fmt.Println("   ✅ JWT configurado")
-	fmt.Println("   💡 Próximamente: Generación automática de estructura de auth")
+	fmt.Println("   ✅ JWT configured")
+	fmt.Println("   💡 Coming soon: Automatic generation of auth structure")
 
-	// TODO: Crear estructura completa de auth
+	// TODO: Create complete auth structure
 	// - internal/auth/jwt.go
 	// - internal/auth/middleware.go
 	// - internal/handlers/auth_handler.go
@@ -100,10 +100,10 @@ func (a *AuthAddon) installJWT() error {
 }
 
 func (a *AuthAddon) installOAuth2() error {
-	fmt.Println("   📦 Instalando OAuth2...")
+	fmt.Println("   📦 Installing OAuth2...")
 
-	// TODO: Implementar OAuth2
-	fmt.Println("   ⚠️  Implementación completa próximamente")
+	// TODO: Implement OAuth2
+	fmt.Println("   ⚠️  Full implementation coming soon")
 
 	return nil
 }

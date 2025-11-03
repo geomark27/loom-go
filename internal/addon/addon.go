@@ -6,35 +6,35 @@ import (
 	"strings"
 )
 
-// Addon representa un componente que puede ser añadido al proyecto
+// Addon represents a component that can be added to the project
 type Addon interface {
-	// Name retorna el nombre del addon
+	// Name returns the addon name
 	Name() string
 
-	// Description retorna la descripción del addon
+	// Description returns the addon description
 	Description() string
 
-	// IsInstalled verifica si el addon ya está instalado
+	// IsInstalled checks if the addon is already installed
 	IsInstalled() (bool, error)
 
-	// CanInstall verifica si el addon puede ser instalado (dependencias, etc.)
+	// CanInstall checks if the addon can be installed (dependencies, etc.)
 	CanInstall() (bool, string, error)
 
-	// Install instala el addon
+	// Install installs the addon
 	Install(force bool) error
 
-	// GetConflicts retorna addons que pueden conflictuar
+	// GetConflicts returns addons that may conflict
 	GetConflicts() []string
 }
 
-// AddonManager gestiona los addons disponibles
+// AddonManager manages available addons
 type AddonManager struct {
 	projectRoot  string
-	architecture string // "layered" o "modular"
+	architecture string // "layered" or "modular"
 	addons       map[string]Addon
 }
 
-// NewAddonManager crea un nuevo gestor de addons
+// NewAddonManager creates a new addon manager
 func NewAddonManager(projectRoot, architecture string) *AddonManager {
 	am := &AddonManager{
 		projectRoot:  projectRoot,
@@ -42,13 +42,13 @@ func NewAddonManager(projectRoot, architecture string) *AddonManager {
 		addons:       make(map[string]Addon),
 	}
 
-	// Registrar addons disponibles
+	// Register available addons
 	am.registerAddons()
 
 	return am
 }
 
-// registerAddons registra todos los addons disponibles
+// registerAddons registers all available addons
 func (am *AddonManager) registerAddons() {
 	// Routers
 	am.addons["gin"] = NewRouterAddon(am.projectRoot, am.architecture, "gin")
@@ -73,16 +73,16 @@ func (am *AddonManager) registerAddons() {
 	am.addons["docker"] = NewDockerAddon(am.projectRoot, am.architecture)
 }
 
-// GetAddon retorna un addon por nombre
+// GetAddon returns an addon by name
 func (am *AddonManager) GetAddon(name string) (Addon, error) {
 	addon, exists := am.addons[name]
 	if !exists {
-		return nil, fmt.Errorf("addon '%s' no encontrado", name)
+		return nil, fmt.Errorf("addon '%s' not found", name)
 	}
 	return addon, nil
 }
 
-// ListAddons retorna todos los addons disponibles por categoría
+// ListAddons returns all available addons by category
 func (am *AddonManager) ListAddons() map[string][]string {
 	return map[string][]string{
 		"routers":        {"gin", "chi", "echo"},
@@ -93,66 +93,66 @@ func (am *AddonManager) ListAddons() map[string][]string {
 	}
 }
 
-// InstallAddon instala un addon
+// InstallAddon installs an addon
 func (am *AddonManager) InstallAddon(name string, force bool) error {
 	addon, err := am.GetAddon(name)
 	if err != nil {
 		return err
 	}
 
-	// Verificar si ya está instalado
+	// Check if already installed
 	installed, err := addon.IsInstalled()
 	if err != nil {
-		return fmt.Errorf("error al verificar instalación: %w", err)
+		return fmt.Errorf("error checking installation: %w", err)
 	}
 
 	if installed && !force {
-		return fmt.Errorf("%s ya está instalado. Usa --force para reinstalar", addon.Name())
+		return fmt.Errorf("%s is already installed. Use --force to reinstall", addon.Name())
 	}
 
-	// Verificar si puede ser instalado
+	// Check if it can be installed
 	canInstall, reason, err := addon.CanInstall()
 	if err != nil {
-		return fmt.Errorf("error al verificar compatibilidad: %w", err)
+		return fmt.Errorf("error checking compatibility: %w", err)
 	}
 
 	if !canInstall {
-		return fmt.Errorf("no se puede instalar %s: %s", addon.Name(), reason)
+		return fmt.Errorf("cannot install %s: %s", addon.Name(), reason)
 	}
 
-	// Verificar conflictos
+	// Check conflicts
 	conflicts := addon.GetConflicts()
 	for _, conflictName := range conflicts {
 		conflictAddon, _ := am.GetAddon(conflictName)
 		if conflictAddon != nil {
 			if conflictInstalled, _ := conflictAddon.IsInstalled(); conflictInstalled {
 				if !force {
-					return fmt.Errorf("conflicto detectado: %s está instalado. Usa --force para reemplazar", conflictName)
+					return fmt.Errorf("conflict detected: %s is installed. Use --force to replace", conflictName)
 				}
-				fmt.Printf("⚠️  Reemplazando %s con %s...\n", conflictName, name)
+				fmt.Printf("⚠️  Replacing %s with %s...\n", conflictName, name)
 			}
 		}
 	}
 
-	// Instalar
-	fmt.Printf("📦 Instalando %s...\n", addon.Name())
+	// Install
+	fmt.Printf("📦 Installing %s...\n", addon.Name())
 	if err := addon.Install(force); err != nil {
-		return fmt.Errorf("error al instalar %s: %w", addon.Name(), err)
+		return fmt.Errorf("error installing %s: %w", addon.Name(), err)
 	}
 
-	fmt.Printf("✅ %s instalado exitosamente!\n", addon.Name())
+	fmt.Printf("✅ %s installed successfully!\n", addon.Name())
 	return nil
 }
 
 // Helper functions
 
-// FileExists verifica si un archivo existe
+// FileExists checks if a file exists
 func FileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
 
-// ReadFile lee el contenido de un archivo
+// ReadFile reads the content of a file
 func ReadFile(path string) (string, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -161,12 +161,12 @@ func ReadFile(path string) (string, error) {
 	return string(content), nil
 }
 
-// WriteFile escribe contenido en un archivo
+// WriteFile writes content to a file
 func WriteFile(path, content string) error {
 	return os.WriteFile(path, []byte(content), 0644)
 }
 
-// HasImport verifica si un archivo Go tiene un import específico
+// HasImport checks if a Go file has a specific import
 func HasImport(filePath, importPath string) bool {
 	content, err := ReadFile(filePath)
 	if err != nil {
@@ -175,19 +175,19 @@ func HasImport(filePath, importPath string) bool {
 	return strings.Contains(content, importPath)
 }
 
-// AddImport añade un import a un archivo Go (simplificado)
+// AddImport adds an import to a Go file (simplified)
 func AddImport(filePath, importPath string) error {
 	content, err := ReadFile(filePath)
 	if err != nil {
 		return err
 	}
 
-	// Si ya tiene el import, no hacer nada
+	// If it already has the import, do nothing
 	if strings.Contains(content, importPath) {
 		return nil
 	}
 
-	// Buscar el bloque import
+	// Search for the import block
 	lines := strings.Split(content, "\n")
 	newLines := []string{}
 	importAdded := false
@@ -195,23 +195,23 @@ func AddImport(filePath, importPath string) error {
 	for i, line := range lines {
 		newLines = append(newLines, line)
 
-		// Si encontramos import ( y no hemos añadido el import
+		// If we find import ( and haven't added the import
 		if strings.Contains(line, "import (") && !importAdded {
-			// Añadir el nuevo import después de esta línea
+			// Add the new import after this line
 			newLines = append(newLines, fmt.Sprintf("\t\"%s\"", importPath))
 			importAdded = true
 		}
 
-		// Si no hay bloque import, crear uno
+		// If there's no import block, create one
 		if i == 0 && strings.HasPrefix(line, "package ") && !importAdded {
-			// Buscar si hay import simple
+			// Search if there's a simple import
 			for j := i + 1; j < len(lines); j++ {
 				if strings.HasPrefix(strings.TrimSpace(lines[j]), "import ") {
 					importAdded = true
 					break
 				}
 				if strings.TrimSpace(lines[j]) != "" {
-					// Llegamos al código, insertar import aquí
+					// We reached the code, insert import here
 					newLines = append(newLines, "")
 					newLines = append(newLines, "import (")
 					newLines = append(newLines, fmt.Sprintf("\t\"%s\"", importPath))
@@ -226,20 +226,20 @@ func AddImport(filePath, importPath string) error {
 	return WriteFile(filePath, strings.Join(newLines, "\n"))
 }
 
-// UpdateGoMod actualiza go.mod con una nueva dependencia
+// UpdateGoMod updates go.mod with a new dependency
 func UpdateGoMod(module, version string) error {
-	// Leer go.mod actual
+	// Read current go.mod
 	content, err := ReadFile("go.mod")
 	if err != nil {
 		return err
 	}
 
-	// Si ya tiene la dependencia, no hacer nada
+	// If it already has the dependency, do nothing
 	if strings.Contains(content, module) {
 		return nil
 	}
 
-	// Añadir al bloque require
+	// Add to require block
 	lines := strings.Split(content, "\n")
 	newLines := []string{}
 	requireAdded := false
@@ -253,7 +253,7 @@ func UpdateGoMod(module, version string) error {
 		}
 	}
 
-	// Si no hay bloque require, añadir al final
+	// If there's no require block, add at the end
 	if !requireAdded {
 		newLines = append(newLines, "")
 		newLines = append(newLines, "require (")
@@ -264,11 +264,11 @@ func UpdateGoMod(module, version string) error {
 	return WriteFile("go.mod", strings.Join(newLines, "\n"))
 }
 
-// UpdateEnvExample actualiza .env.example con nuevas variables
+// UpdateEnvExample updates .env.example with new variables
 func UpdateEnvExample(variables map[string]string, section string) error {
 	content := ""
 
-	// Leer existente si existe
+	// Read existing if it exists
 	if FileExists(".env.example") {
 		existingContent, err := ReadFile(".env.example")
 		if err != nil {
@@ -277,7 +277,7 @@ func UpdateEnvExample(variables map[string]string, section string) error {
 		content = existingContent
 	}
 
-	// Añadir sección si no existe
+	// Add section if it doesn't exist
 	sectionHeader := fmt.Sprintf("\n# %s\n", section)
 	if !strings.Contains(content, sectionHeader) {
 		content += sectionHeader

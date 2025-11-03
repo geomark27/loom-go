@@ -8,31 +8,31 @@ import (
 )
 
 var generateModuleCmd = &cobra.Command{
-	Use:   "module [nombre]",
-	Short: "Genera un módulo completo (handler, service, repository, model, DTO)",
-	Long: `Genera un módulo completo con todas sus capas en el proyecto actual.
+	Use:   "module [name]",
+	Short: "Generates a complete module (handler, service, repository, model, DTO)",
+	Long: `Generates a complete module with all its layers in the current project.
 
-El comando detectará automáticamente la arquitectura de tu proyecto
-(Layered o Modular) y generará los archivos apropiados.
+The command will automatically detect your project's architecture
+(Layered or Modular) and generate the appropriate files.
 
-Para arquitectura Layered, genera:
-  - internal/app/handlers/{nombre}_handler.go
-  - internal/domain/services/{nombre}_service.go
-  - internal/infrastructure/repositories/{nombre}_repository.go
-  - internal/domain/models/{nombre}.go
-  - internal/domain/dto/{nombre}_dto.go
+For Layered architecture, it generates:
+  - internal/app/handlers/{name}_handler.go
+  - internal/domain/services/{name}_service.go
+  - internal/infrastructure/repositories/{name}_repository.go
+  - internal/domain/models/{name}.go
+  - internal/domain/dto/{name}_dto.go
 
-Para arquitectura Modular, genera:
-  - internal/modules/{nombre}/handler.go
-  - internal/modules/{nombre}/service.go
-  - internal/modules/{nombre}/repository.go
-  - internal/modules/{nombre}/model.go
-  - internal/modules/{nombre}/dto.go
-  - internal/modules/{nombre}/router.go
-  - internal/modules/{nombre}/validator.go
-  - internal/modules/{nombre}/errors.go
+For Modular architecture, it generates:
+  - internal/modules/{name}/handler.go
+  - internal/modules/{name}/service.go
+  - internal/modules/{name}/repository.go
+  - internal/modules/{name}/model.go
+  - internal/modules/{name}/dto.go
+  - internal/modules/{name}/router.go
+  - internal/modules/{name}/validator.go
+  - internal/modules/{name}/errors.go
 
-Ejemplos:
+Examples:
   loom generate module products
   loom generate module users --force
   loom generate module orders --dry-run`,
@@ -50,70 +50,70 @@ func runGenerateModule(cmd *cobra.Command, args []string) error {
 	force, _ := cmd.Flags().GetBool("force")
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
 
-	// Detectar el proyecto actual (sin argumentos)
+	// Detect the current project (without arguments)
 	projectInfo, err := generator.DetectProject()
 	if err != nil {
-		return fmt.Errorf("error: no se detectó un proyecto Loom válido. %w", err)
+		return fmt.Errorf("error: no valid Loom project detected. %w", err)
 	}
 
-	// Validar el nombre del módulo
+	// Validate the module name
 	if err := generator.ValidateComponentName(moduleName); err != nil {
-		return fmt.Errorf("nombre de módulo inválido: %w", err)
+		return fmt.Errorf("invalid module name: %w", err)
 	}
 
-	fmt.Printf("🔍 Proyecto detectado: %s\n", projectInfo.Name)
-	fmt.Printf("📐 Arquitectura: %s\n", projectInfo.Architecture)
-	fmt.Printf("📦 Generando módulo: %s\n\n", moduleName)
+	fmt.Printf("🔍 Project detected: %s\n", projectInfo.Name)
+	fmt.Printf("📐 Architecture: %s\n", projectInfo.Architecture)
+	fmt.Printf("📦 Generating module: %s\n\n", moduleName)
 
-	// Crear el generador
+	// Create the generator
 	gen := generator.NewModuleGenerator(projectInfo)
 
-	// Generar el módulo (devuelve la lista de archivos)
+	// Generate the module (returns the list of files)
 	files, err := gen.GenerateModule(moduleName, force, dryRun)
 	if err != nil {
-		return fmt.Errorf("error al generar módulo: %w", err)
+		return fmt.Errorf("error generating module: %w", err)
 	}
 
-	// Modo dry-run
+	// Dry-run mode
 	if dryRun {
-		fmt.Println("📋 Archivos que se generarían:")
+		fmt.Println("📋 Files that would be generated:")
 		for _, file := range files {
 			fmt.Printf("   ✨ %s\n", file)
 		}
-		fmt.Println("\n💡 Ejecuta sin --dry-run para crear los archivos")
+		fmt.Println("\n💡 Run without --dry-run to create the files")
 		return nil
 	}
 
-	fmt.Println("✅ Módulo generado exitosamente!")
-	fmt.Println("\n📝 Archivos creados:")
+	fmt.Println("✅ Module generated successfully!")
+	fmt.Println("\n📝 Files created:")
 	for _, file := range files {
 		fmt.Printf("   ✨ %s\n", file)
 	}
 
-	fmt.Println("\n📝 Próximos pasos:")
+	fmt.Println("\n📝 Next steps:")
 
 	if projectInfo.Architecture == "modular" {
-		fmt.Printf("   1. Registra el router en cmd/loom/main.go:\n")
+		fmt.Printf("   1. Register the router in cmd/loom/main.go:\n")
 		fmt.Printf("      %sRouter := %s.NewRouter()\n", moduleName, moduleName)
 		fmt.Printf("      router.PathPrefix(\"/%s\").Handler(%sRouter)\n\n", moduleName, moduleName)
 	} else {
-		fmt.Printf("   1. Registra las rutas en cmd/loom/main.go:\n")
+		fmt.Printf("   1. Register the routes in cmd/loom/main.go:\n")
 		fmt.Printf("      %sHandler := handlers.New%sHandler()\n", moduleName, toPascalCase(moduleName))
 		fmt.Printf("      router.HandleFunc(\"/%s\", %sHandler.Create).Methods(\"POST\")\n\n", moduleName, moduleName)
 	}
 
-	fmt.Println("   2. Ejecuta: go mod tidy")
-	fmt.Println("   3. Implementa la lógica de negocio en los archivos generados")
+	fmt.Println("   2. Run: go mod tidy")
+	fmt.Println("   3. Implement the business logic in the generated files")
 
 	return nil
 }
 
-// toPascalCase convierte una cadena a PascalCase
+// toPascalCase converts a string to PascalCase
 func toPascalCase(s string) string {
 	if len(s) == 0 {
 		return s
 	}
-	// Convertir primera letra a mayúscula
+	// Convert first letter to uppercase
 	if s[0] >= 'a' && s[0] <= 'z' {
 		return string(s[0]-32) + s[1:]
 	}

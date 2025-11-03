@@ -8,14 +8,14 @@ import (
 //go:embed all:templates
 var templatesFS embed.FS
 
-// getTemplates retorna un mapa con todas las plantillas embebidas
+// getTemplates returns a map with all embedded templates
 func getTemplates() map[string]string {
 	templates := make(map[string]string)
 
-	// Lista de todos los templates
+	// List of all templates
 	templateFiles := map[string]string{
 		// ======================================
-		// Project files (compartidos)
+		// Project files (shared)
 		// ======================================
 		"go.mod.tmpl":       "templates/project/go.mod.tmpl",
 		"README.md.tmpl":    "templates/project/README.md.tmpl",
@@ -25,7 +25,7 @@ func getTemplates() map[string]string {
 		"Makefile.tmpl":     "templates/project/Makefile.tmpl",
 
 		// ======================================
-		// Config (compartido)
+		// Config (shared)
 		// ======================================
 		"config.go.tmpl": "templates/config/config.go.tmpl",
 
@@ -57,7 +57,7 @@ func getTemplates() map[string]string {
 		"modular/api_docs.tmpl":      "templates/modular/api_docs.tmpl",
 
 		// ======================================
-		// Shared Templates (usados por ambas arquitecturas)
+		// Shared Templates (used by both architectures)
 		// ======================================
 		"user_model.go.tmpl":      "templates/models/user_model.go.tmpl",
 		"user_dto.go.tmpl":        "templates/dtos/user_dto.go.tmpl",
@@ -65,12 +65,12 @@ func getTemplates() map[string]string {
 		"api_docs.tmpl":           "templates/docs/api_docs.tmpl",
 	}
 
-	// Cargar cada template
+	// Load each template
 	for key, path := range templateFiles {
 		content, err := templatesFS.ReadFile(path)
 		if err != nil {
-			// Log el error pero no hacer panic - algunos templates pueden no existir
-			// dependiendo de qué carpeta se use
+			// Log the error but don't panic - some templates may not exist
+			// depending on which folder is used
 			fmt.Printf("Warning: Template %s not found, skipping\n", path)
 			continue
 		}
