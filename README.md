@@ -2,7 +2,7 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.23%2B-00ADD8?style=flat&logo=go)](https://golang.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.3-green.svg)](https://github.com/geomark27/loom-go/releases)
+[![Version](https://img.shields.io/badge/version-1.1.0-green.svg)](https://github.com/geomark27/loom-go/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/geomark27/loom-go)](https://goreportcard.com/report/github.com/geomark27/loom-go)
 
 > **Loom** is not a framework, it's a **code weaver**. Generate professional Go projects in seconds and get the tools to extend them without limits.
@@ -13,6 +13,8 @@
 
 - ⚡ **Create complete projects in 30 seconds**
 - 🏗️ **Dual architecture**: Layered (simple) or Modular (scalable)
+- 🎯 **Gin as default router** - Modern, fast, and popular (v1.1.0)
+- 🗃️ **Full GORM integration** - Migrations, seeders, and CLI (v1.1.0)
 - 🔧 **Generate individual components** in existing projects
 - ⬆️ **Update projects** without losing your changes
 - 🎨 **Add technologies** (routers, ORMs, databases) on-the-fly
@@ -44,6 +46,19 @@ loom new my-api --standalone
 loom new my-app --modular
 ```
 
+### Add GORM ORM (NEW in v1.1.0!)
+
+```bash
+cd my-api
+loom add orm gorm
+
+# This generates:
+# - internal/database/database.go (GORM connection)
+# - internal/database/seeders/ (seeding system)
+# - cmd/console/main.go (database CLI)
+# - Makefile targets (db-migrate, db-seed, db-fresh)
+```
+
 ### Run
 
 ```bash
@@ -51,6 +66,24 @@ cd my-api
 go mod tidy
 go run cmd/my-api/main.go
 # 🚀 Server running at http://localhost:8080
+```
+
+### Database Commands (with GORM)
+
+```bash
+# Run migrations
+go run cmd/console/main.go migrate
+
+# Run migrations with seeders
+go run cmd/console/main.go migrate --seed
+
+# Fresh migration (drop all + migrate + seed)
+go run cmd/console/main.go migrate --fresh --seed
+
+# Or use Makefile
+make db-migrate
+make db-seed
+make db-fresh
 ```
 
 ### Test
@@ -95,13 +128,13 @@ loom generate handler api --force     # Overwrite
 ### `loom add` - Add technologies
 
 ```bash
+# Add ORM (NEW in v1.1.0! - Full implementation)
+loom add orm gorm            # GORM + PostgreSQL driver + migrations + seeders + CLI
+
 # Change HTTP router
-loom add router gin          # Replace Gorilla Mux with Gin
+loom add router gin          # Replace with Gin (now default!)
 loom add router chi          # Or with Chi
 loom add router echo         # Or with Echo
-
-# Add ORM
-loom add orm gorm            # Configure GORM
 
 # Configure database
 loom add database postgres   # PostgreSQL with docker-compose
@@ -247,6 +280,11 @@ make test-coverage  # Tests with coverage
 make fmt            # Format code
 make vet            # Static analysis
 make clean          # Clean files
+
+# Database commands (after loom add orm gorm):
+make db-migrate     # Run migrations
+make db-seed        # Run seeders
+make db-fresh       # Drop all + migrate + seed
 
 # If you added Docker:
 make docker-build   # Build image

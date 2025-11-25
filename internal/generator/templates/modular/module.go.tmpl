@@ -1,6 +1,6 @@
 package users
 
-import "github.com/gorilla/mux"
+import "github.com/gin-gonic/gin"
 
 // Module representa el módulo de usuarios completo
 type Module struct {
@@ -31,6 +31,6 @@ func (m *Module) Service() Service {
 }
 
 // RegisterRoutes registra las rutas HTTP del módulo
-func (m *Module) RegisterRoutes(router *mux.Router) {
+func (m *Module) RegisterRoutes(router *gin.RouterGroup) {
 	m.handler.RegisterRoutes(router)
 }

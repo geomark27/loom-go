@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -10,10 +9,10 @@ import (
 {{- if .UseHelpers}}
 	"github.com/geomark27/loom-go/pkg/helpers"
 {{- end}}
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
-// UserHandler maneja las rutas relacionadas con usuarios
+// UserHandler handles user-related routes
 type UserHandler struct {
 	userService services.UserService
 {{- if .UseHelpers}}
@@ -21,7 +20,7 @@ type UserHandler struct {
 {{- end}}
 }
 
-// NewUserHandler crea una nueva instancia de UserHandler
+// NewUserHandler creates a new UserHandler instance
 func NewUserHandler(userService services.UserService) *UserHandler {
 	return &UserHandler{
 		userService: userService,
@@ -31,227 +30,198 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 	}
 }
 
-// GetUsers obtiene todos los usuarios
-func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+// GetUsers retrieves all users
+func (h *UserHandler) GetUsers(c *gin.Context) {
 	users, err := h.userService.GetAllUsers()
 	if err != nil {
 {{- if .UseHelpers}}
 		h.logger.Error("Failed to get users", "error", err)
-		helpers.RespondError(w, err, http.StatusInternalServerError)
-{{- else}}
-		http.Error(w, "Error obteniendo usuarios", http.StatusInternalServerError)
 {{- end}}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to retrieve users",
+		})
 		return
 	}
-{{- if .UseHelpers}}
 
-	helpers.RespondSuccess(w, map[string]interface{}{
-		"users": users,
-		"count": len(users),
-	}, "Usuarios obtenidos exitosamente")
-{{- else}}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"data":    users,
-		"count":   len(users),
+	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
-		"message": "Usuarios obtenidos exitosamente",
+		"message": "Users retrieved successfully",
+		"data": gin.H{
+			"users": users,
+			"count": len(users),
+		},
 	})
-{{- end}}
 }
 
-// GetUser obtiene un usuario por ID
-func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+// GetUser retrieves a user by ID
+func (h *UserHandler) GetUser(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-{{- if .UseHelpers}}
-		helpers.RespondError(w, helpers.ErrBadRequest, http.StatusBadRequest)
-{{- else}}
-		http.Error(w, "ID de usuario inválido", http.StatusBadRequest)
-{{- end}}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid user ID",
+		})
 		return
 	}
 
 	user, err := h.userService.GetUserByID(id)
 	if err != nil {
 		if err.Error() == "user not found" {
-{{- if .UseHelpers}}
-			helpers.RespondError(w, helpers.ErrNotFound, http.StatusNotFound)
-{{- else}}
-			http.Error(w, "Usuario no encontrado", http.StatusNotFound)
-{{- end}}
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found",
+			})
 			return
 		}
 {{- if .UseHelpers}}
-		helpers.RespondError(w, err, http.StatusInternalServerError)
-{{- else}}
-		http.Error(w, "Error obteniendo usuario", http.StatusInternalServerError)
+		h.logger.Error("Failed to get user", "error", err, "user_id", id)
 {{- end}}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to retrieve user",
+		})
 		return
 	}
-{{- if .UseHelpers}}
 
-	helpers.RespondSuccess(w, user, "Usuario obtenido exitosamente")
-{{- else}}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"data":    user,
+	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
-		"message": "Usuario obtenido exitosamente",
+		"message": "User retrieved successfully",
+		"data":    user,
 	})
-{{- end}}
 }
 
-// CreateUser crea un nuevo usuario
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var createUserDTO dtos.CreateUserDTO
-	if err := json.NewDecoder(r.Body).Decode(&createUserDTO); err != nil {
-{{- if .UseHelpers}}
-		helpers.RespondError(w, helpers.ErrBadRequest, http.StatusBadRequest)
-{{- else}}
-		http.Error(w, "Datos de entrada inválidos", http.StatusBadRequest)
-{{- end}}
+// CreateUser creates a new user
+func (h *UserHandler) CreateUser(c *gin.Context) {
+	var dto dtos.CreateUserDTO
+
+	if err := c.ShouldBindJSON(&dto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid request body",
+			"details": err.Error(),
+		})
 		return
 	}
+
 {{- if .UseHelpers}}
-
-	// Validar DTO usando helpers
-	if errors := helpers.ValidateStruct(createUserDTO); len(errors) > 0 {
-		helpers.RespondJSON(w, map[string]interface{}{
-			"status": "error",
-			"errors": errors,
-		}, http.StatusBadRequest)
-		return
-	}
-{{- else}}
-
-	// Validar DTO
-	if err := createUserDTO.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	// Validate DTO
+	if errors := helpers.ValidateStruct(&dto); len(errors) > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Validation failed",
+			"details": errors,
+		})
 		return
 	}
 {{- end}}
 
-	user, err := h.userService.CreateUser(createUserDTO)
+	user, err := h.userService.CreateUser(&dto)
 	if err != nil {
 {{- if .UseHelpers}}
 		h.logger.Error("Failed to create user", "error", err)
-		helpers.RespondError(w, err, http.StatusInternalServerError)
-{{- else}}
-		http.Error(w, "Error creando usuario", http.StatusInternalServerError)
 {{- end}}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to create user",
+		})
 		return
 	}
+
 {{- if .UseHelpers}}
-
-	helpers.RespondCreated(w, user, "Usuario creado exitosamente")
-{{- else}}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"data":    user,
-		"status":  "success",
-		"message": "Usuario creado exitosamente",
-	})
+	h.logger.Info("User created successfully", "user_id", user.ID)
 {{- end}}
+	
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  "success",
+		"message": "User created successfully",
+		"data":    user,
+	})
 }
 
-// UpdateUser actualiza un usuario existente
-func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+// UpdateUser updates an existing user
+func (h *UserHandler) UpdateUser(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-{{- if .UseHelpers}}
-		helpers.RespondError(w, helpers.ErrBadRequest, http.StatusBadRequest)
-{{- else}}
-		http.Error(w, "ID de usuario inválido", http.StatusBadRequest)
-{{- end}}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid user ID",
+		})
 		return
 	}
 
-	var updateUserDTO dtos.UpdateUserDTO
-	if err := json.NewDecoder(r.Body).Decode(&updateUserDTO); err != nil {
-{{- if .UseHelpers}}
-		helpers.RespondError(w, helpers.ErrBadRequest, http.StatusBadRequest)
-{{- else}}
-		http.Error(w, "Datos de entrada inválidos", http.StatusBadRequest)
-{{- end}}
+	var dto dtos.UpdateUserDTO
+	if err := c.ShouldBindJSON(&dto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid request body",
+			"details": err.Error(),
+		})
 		return
 	}
 
-	user, err := h.userService.UpdateUser(id, updateUserDTO)
+{{- if .UseHelpers}}
+	// Validate DTO
+	if errors := helpers.ValidateStruct(&dto); len(errors) > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Validation failed",
+			"details": errors,
+		})
+		return
+	}
+{{- end}}
+
+	user, err := h.userService.UpdateUser(id, &dto)
 	if err != nil {
 		if err.Error() == "user not found" {
-{{- if .UseHelpers}}
-			helpers.RespondError(w, helpers.ErrNotFound, http.StatusNotFound)
-{{- else}}
-			http.Error(w, "Usuario no encontrado", http.StatusNotFound)
-{{- end}}
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found",
+			})
 			return
 		}
 {{- if .UseHelpers}}
-		helpers.RespondError(w, err, http.StatusInternalServerError)
-{{- else}}
-		http.Error(w, "Error actualizando usuario", http.StatusInternalServerError)
+		h.logger.Error("Failed to update user", "error", err, "user_id", id)
 {{- end}}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to update user",
+		})
 		return
 	}
+
 {{- if .UseHelpers}}
-
-	helpers.RespondSuccess(w, user, "Usuario actualizado exitosamente")
-{{- else}}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"data":    user,
-		"status":  "success",
-		"message": "Usuario actualizado exitosamente",
-	})
+	h.logger.Info("User updated successfully", "user_id", id)
 {{- end}}
+	
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "User updated successfully",
+		"data":    user,
+	})
 }
 
-// DeleteUser elimina un usuario
-func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+// DeleteUser deletes a user
+func (h *UserHandler) DeleteUser(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-{{- if .UseHelpers}}
-		helpers.RespondError(w, helpers.ErrBadRequest, http.StatusBadRequest)
-{{- else}}
-		http.Error(w, "ID de usuario inválido", http.StatusBadRequest)
-{{- end}}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid user ID",
+		})
 		return
 	}
 
 	if err := h.userService.DeleteUser(id); err != nil {
 		if err.Error() == "user not found" {
-{{- if .UseHelpers}}
-			helpers.RespondError(w, helpers.ErrNotFound, http.StatusNotFound)
-{{- else}}
-			http.Error(w, "Usuario no encontrado", http.StatusNotFound)
-{{- end}}
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found",
+			})
 			return
 		}
 {{- if .UseHelpers}}
-		helpers.RespondError(w, err, http.StatusInternalServerError)
-{{- else}}
-		http.Error(w, "Error eliminando usuario", http.StatusInternalServerError)
+		h.logger.Error("Failed to delete user", "error", err, "user_id", id)
 {{- end}}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete user",
+		})
 		return
 	}
+
 {{- if .UseHelpers}}
-
-	helpers.RespondSuccess(w, nil, "Usuario eliminado exitosamente")
-{{- else}}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "success",
-		"message": "Usuario eliminado exitosamente",
-	})
+	h.logger.Info("User deleted successfully", "user_id", id)
 {{- end}}
+	
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "User deleted successfully",
+	})
 }

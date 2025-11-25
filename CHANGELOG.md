@@ -7,6 +7,97 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.1.0] - 2025-11-24 🚀
+
+### ⚠️ BREAKING CHANGES
+- **Default router changed**: Gorilla Mux replaced with **Gin** as the default router
+  - All generated projects now use `github.com/gin-gonic/gin v1.10.0`
+  - **Both architectures** (Layered and Modular) updated to use Gin
+  - Handler signatures changed from `http.ResponseWriter, *http.Request` to `*gin.Context`
+  - Route parameters now use `:id` syntax instead of `{id}`
+  - Module routes now use `*gin.RouterGroup` instead of `*mux.Router`
+
+### ✨ Added
+- **Complete GORM addon** (`loom add orm gorm`):
+  - Full GORM v1.25.5 + PostgreSQL driver installation
+  - Database connection manager (`internal/database/database.go`)
+  - Model registry for auto-migration (`internal/database/models_all.go`)
+  - Seeder system with interface and registry (`internal/database/seeders/`)
+  - Example UserSeeder with bcrypt password hashing
+  - Console CLI (`cmd/console/main.go`) with Cobra commands:
+    - `go run cmd/console/main.go migrate` - Run migrations
+    - `go run cmd/console/main.go migrate --fresh` - Drop all tables and migrate
+    - `go run cmd/console/main.go migrate --seed` - Migrate with seeders
+    - `go run cmd/console/main.go seed` - Run seeders only
+  - Makefile targets: `make db-migrate`, `make db-seed`, `make db-fresh`
+  - Auto-updates `.env.example` with DB variables
+
+- **New `loom make` commands** for database components:
+  - `loom make model <Name>` - Generate GORM model with auto-registration in `models_all.go`
+  - `loom make seeder <Name>` - Generate seeder with auto-registration in `seeders_all.go`
+  - Both commands support Layered and Modular architectures
+  - Generated code includes GORM tags, JSON tags, and example fields
+
+- **User model with GORM support**:
+  - Uses `gorm.Model` (ID, CreatedAt, UpdatedAt, DeletedAt)
+  - GORM tags for validation (size, not null, uniqueIndex)
+  - Password field with `json:"-"` for security
+  - IsActive boolean field
+
+- **Architecture-aware templates**:
+  - Templates detect layered vs modular architecture
+  - Correct paths for config and models based on architecture
+  - Dynamic module name injection from go.mod
+
+### 🔧 Changed
+- **Gin as default router** (both architectures):
+  - **Layered architecture**:
+    - `layered/server.go.tmpl` - Uses `gin.Engine` and `gin.Default()`
+    - `layered/routes.go.tmpl` - Uses `router.Group()` and `api.GET/POST/PUT/DELETE`
+    - `layered/user_handler.go.tmpl` - Uses `*gin.Context` and `c.JSON()`
+    - `layered/health_handler.go.tmpl` - Uses Gin response methods
+  - **Modular architecture**:
+    - `modular/server.go.tmpl` - Uses `gin.Engine` with integrated CORS
+    - `modular/router.go.tmpl` - Health routes with Gin handlers
+    - `modular/handler.go.tmpl` - Uses `*gin.Context` and `c.ShouldBindJSON()`
+    - `modular/module.go.tmpl` - Routes use `*gin.RouterGroup`
+  - CORS middleware now uses `gin.HandlerFunc` (inline in server.go)
+
+- **go.mod template** - Now includes `github.com/gin-gonic/gin v1.10.0`
+
+### 🏗️ New Project Structure (after `loom add orm gorm`)
+```
+my-project/
+├── cmd/
+│   ├── my-project/main.go
+│   └── console/main.go          # NEW: Database CLI
+├── internal/
+│   ├── database/                 # NEW: Database layer
+│   │   ├── database.go           # GORM connection
+│   │   ├── models_all.go         # Model registry
+│   │   └── seeders/
+│   │       ├── seeders_all.go    # Seeder interface
+│   │       ├── database_seeder.go# Seeder orchestrator
+│   │       └── user_seeder.go    # Example seeder
+│   └── ...
+└── Makefile                      # Updated with db-* commands
+```
+
+### 📝 Migration Guide from v1.0.x
+
+1. **Router change** (if updating existing project):
+   - Replace `github.com/gorilla/mux` with `github.com/gin-gonic/gin`
+   - Update handler signatures to use `*gin.Context`
+   - Replace `mux.Vars(r)["id"]` with `c.Param("id")`
+   - Replace `json.NewEncoder(w).Encode()` with `c.JSON()`
+
+2. **Using GORM**:
+   - After `loom add orm gorm`, manually add DB fields to your Config struct
+   - Add `GetDBConnectionString()` method to Config
+   - Load DB environment variables in `config.Load()`
+
+---
+
 ## [1.0.6] - 2025-11-03
 
 ### 🔧 Changed

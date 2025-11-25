@@ -1,0 +1,52 @@
+package seeders
+
+import (
+	"log"
+
+	"{{.ModuleName}}/{{.ModelsPath}}"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+)
+
+// UserSeeder seeds initial users
+type UserSeeder struct{}
+
+// Run executes the user seeder
+func (s *UserSeeder) Run(db *gorm.DB) error {
+	// Check if admin user already exists
+	var existing models.User
+	result := db.Where("email = ?", "admin@example.com").First(&existing)
+
+	if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
+		log.Printf("❌ Error checking existing user: %v", result.Error)
+		return result.Error
+	}
+
+	// If user doesn't exist, create it
+	if result.Error == gorm.ErrRecordNotFound {
+		// Hash password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+		if err != nil {
+			log.Printf("❌ Error hashing password: %v", err)
+			return err
+		}
+
+		admin := models.User{
+			Name:     "Admin User",
+			Email:    "admin@example.com",
+			Password: string(hashedPassword),
+			IsActive: true,
+		}
+
+		if err := db.Create(&admin).Error; err != nil {
+			log.Printf("❌ Error creating admin user: %v", err)
+			return err
+		}
+
+		log.Println("✅ Admin user created successfully")
+	} else {
+		log.Println("⏭️  Admin user already exists, skipping")
+	}
+
+	return nil
+}

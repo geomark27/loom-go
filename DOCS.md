@@ -196,7 +196,7 @@ loom new api -m github.com/mycompany/my-api
 **What does it generate?**
 - Complete directory structure
 - `go.mod` with Go module
-- Functional HTTP server (Gorilla Mux)
+- Functional HTTP server (**Gin** - high performance)
 - Example user CRUD
 - Health checks (/, /health, /ready)
 - CORS middleware
@@ -283,6 +283,93 @@ loom generate middleware auth
 
 ---
 
+### `loom make` - Database Components
+
+```bash
+loom make [type] [name] [flags]
+```
+
+Generate database-related components with auto-registration. **Requires** `loom add orm gorm` first.
+
+#### `loom make model`
+
+Generate a GORM model with automatic registration in `models_all.go`.
+
+```bash
+loom make model Product
+loom make model Category --force
+```
+
+**Generates:**
+- Layered: `internal/app/models/product.go`
+- Modular: `internal/models/product.go`
+
+**Generated code:**
+```go
+package models
+
+import "gorm.io/gorm"
+
+type Product struct {
+    gorm.Model
+    Name        string `gorm:"size:100;not null" json:"name"`
+    Description string `gorm:"type:text" json:"description"`
+    // Add your fields here
+}
+```
+
+**Auto-registers in `models_all.go`:**
+```go
+var AllModels = []interface{}{
+    &models.User{},
+    &models.Product{},  // ← Automatically added
+}
+```
+
+#### `loom make seeder`
+
+Generate a seeder with automatic registration in `seeders_all.go`.
+
+```bash
+loom make seeder Product
+loom make seeder Category --force
+```
+
+**Generates:** `internal/database/seeders/product_seeder.go`
+
+**Generated code:**
+```go
+package seeders
+
+import (
+    "your-module/internal/app/models"
+    "gorm.io/gorm"
+)
+
+type ProductSeeder struct{}
+
+func (s *ProductSeeder) Run(db *gorm.DB) error {
+    products := []models.Product{
+        // Add your seed data here
+    }
+    
+    for _, item := range products {
+        db.FirstOrCreate(&item, models.Product{Name: item.Name})
+    }
+    return nil
+}
+```
+
+**Auto-registers in `seeders_all.go`:**
+```go
+var AllSeeders = []Seeder{
+    &UserSeeder{},
+    &ProductSeeder{},  // ← Automatically added
+}
+```
+
+---
+
 ### `loom add` - Addon System
 
 ```bash
@@ -293,40 +380,111 @@ loom add [category] [name] [flags]
 
 #### HTTP Routers
 
-```bash
-# Gin (recommended for performance)
-loom add router gin
+> **Note:** Since v1.1.0, **Gin is the default router**. You only need to use `loom add router` if you want to switch to a different router.
 
+```bash
 # Chi (lightweight, compatible with net/http)
 loom add router chi
 
 # Echo (minimalist)
 loom add router echo
+
+# Fiber (fastest, Express-like)
+loom add router fiber
 ```
 
 **What does it do?**
 1. Updates `go.mod` with the new dependency
-2. Replaces `internal/server/server.go`
+2. Replaces `internal/server/server.go` or `internal/platform/server/server.go`
 3. Generates appropriate code for the router
-4. Warns you to update handlers manually
+4. Updates handlers to use the new router's API
 
-**Note:** Replaces Gorilla Mux by default. Use `--force` to confirm.
+**Note:** Replaces current router. Use `--force` to confirm.
 
 #### ORMs
 
 ```bash
-# GORM (full ORM)
+# GORM (full ORM) - Recommended
 loom add orm gorm
 
 # sqlc (generator from SQL)
 loom add orm sqlc
 ```
 
-**What does it do?**
-1. Adds ORM dependency
-2. Creates `internal/database/` with configuration
-3. Updates repositories to use ORM
-4. Configures migrations (GORM)
+**What does `loom add orm gorm` do?**
+
+1. **Adds dependencies:**
+   - `gorm.io/gorm v1.25.5`
+   - `gorm.io/driver/postgres v1.5.4`
+   - `golang.org/x/crypto v0.17.0` (bcrypt for seeders)
+   - `github.com/spf13/cobra v1.9.1` (console CLI)
+
+2. **Creates database layer:**
+   ```
+   internal/database/
+   ├── database.go       # GORM connection manager
+   ├── models_all.go     # Model registry for auto-migration
+   └── seeders/
+       ├── seeders_all.go      # Seeder interface
+       ├── database_seeder.go  # Seeder orchestrator
+       └── user_seeder.go      # Example seeder with bcrypt
+   ```
+
+3. **Creates console CLI:**
+   ```
+   cmd/console/main.go   # Cobra CLI with migrate/seed commands
+   ```
+
+4. **Updates Makefile** with database commands:
+   ```bash
+   make db-migrate     # Run migrations
+   make db-seed        # Run seeders
+   make db-fresh       # Drop all + migrate + seed
+   ```
+
+5. **Updates `.env.example`** with database variables:
+   ```env
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=postgres
+   DB_PASSWORD=password
+   DB_NAME=myapp
+   DB_SSLMODE=disable
+   ```
+
+**Console commands:**
+```bash
+# Run migrations
+go run cmd/console/main.go migrate
+
+# Run migrations + seeders
+go run cmd/console/main.go migrate --seed
+
+# Fresh database (drop all + migrate + seed)
+go run cmd/console/main.go migrate --fresh
+
+# Run only seeders
+go run cmd/console/main.go seed
+```
+
+**Add new models to migration:**
+```go
+// internal/database/models_all.go
+var AllModels = []interface{}{
+    &models.User{},
+    &models.Product{},  // Add your models here
+    &models.Order{},
+}
+```
+
+**Add new seeders:**
+```go
+// internal/database/seeders/seeders_all.go
+var AllSeeders = []Seeder{
+    &UserSeeder{},
+    &ProductSeeder{},  // Add your seeders here
+}
+```
 
 #### Databases
 
@@ -426,11 +584,12 @@ loom upgrade [flags]
    - v0.3.0 → v0.4.0: Creates `.loom` file
    - v0.4.0 → v0.5.0: Prepares upgrade system
    - v0.5.0 → v0.6.0: Prepares addon system
+   - v1.0.0 → v1.1.0: Gin default + GORM addon
 
 5. **Updates `.loom`:**
    ```
    # Loom Project Configuration
-   version=0.6.0
+   version=1.1.0
    architecture=layered
    created_with=loom-cli
    ```
@@ -441,7 +600,7 @@ Loom creates this file to track version and configuration:
 
 ```
 # Loom Project Configuration
-version=0.6.0
+version=1.1.0
 architecture=layered
 created_with=loom-cli
 ```
@@ -472,8 +631,8 @@ Shows:
 **Example output:**
 
 ```
-🔧 Loom CLI v0.6.0
-📦 Current project: v0.4.0
+🔧 Loom CLI v1.1.0
+📦 Current project: v1.0.0
 
 ⚠️  Your project uses an old version of Loom
 💡 Update with: loom upgrade
@@ -609,28 +768,38 @@ go mod tidy
 - ❌ Don't access DB directly from handlers
 - ❌ Don't use global variables
 
-### 2. Handlers
+### 2. Handlers (with Gin)
 
 ```go
-// ✅ GOOD: Clean handler
-func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
+// ✅ GOOD: Clean handler with Gin
+func (h *UserHandler) Create(c *gin.Context) {
     var dto UserDTO
-    if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-        helpers.RespondError(w, err, http.StatusBadRequest)
+    if err := c.ShouldBindJSON(&dto); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "status": "error",
+            "message": err.Error(),
+        })
         return
     }
 
     user, err := h.service.CreateUser(&dto)
     if err != nil {
-        helpers.RespondError(w, err, http.StatusInternalServerError)
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "status": "error",
+            "message": err.Error(),
+        })
         return
     }
 
-    helpers.RespondCreated(w, user, "User created")
+    c.JSON(http.StatusCreated, gin.H{
+        "status": "success",
+        "message": "User created",
+        "data": user,
+    })
 }
 
 // ❌ BAD: Business logic in handler
-func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) Create(c *gin.Context) {
     // ... complex validations
     // ... DB queries
     // ... sending emails
@@ -836,4 +1005,4 @@ Problems? Questions?
 
 ---
 
-**Last updated:** October 27, 2025 - v0.6.0
+**Last updated:** November 24, 2025 - v1.1.0

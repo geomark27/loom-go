@@ -1,65 +1,36 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
-	"time"
+	"github.com/gin-gonic/gin"
 )
 
-// HealthHandler maneja las rutas de salud del sistema
-type HealthHandler struct {
-	startTime time.Time
-}
+// HealthHandler handles health check routes
+type HealthHandler struct{}
 
-// NewHealthHandler crea una nueva instancia de HealthHandler
+// NewHealthHandler creates a new HealthHandler instance
 func NewHealthHandler() *HealthHandler {
-	return &HealthHandler{
-		startTime: time.Now(),
-	}
+	return &HealthHandler{}
 }
 
-// HealthResponse representa la respuesta de salud
-type HealthResponse struct {
-	Status    string    `json:"status"`
-	Timestamp time.Time `json:"timestamp"`
-	Service   string    `json:"service"`
-	Version   string    `json:"version"`
-	Uptime    string    `json:"uptime"`
+// Health performs a basic health check
+func (h *HealthHandler) Health(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "healthy",
+		"service": "{{.Name}}",
+		"version": "v1.1.0",
+	})
 }
 
-// Health retorna el estado de salud básico del servicio
-func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
-	response := HealthResponse{
-		Status:    "healthy",
-		Timestamp: time.Now(),
-		Service:   "{{.Name}}",
-		Version:   "v1.0.0",
-		Uptime:    time.Since(h.startTime).String(),
-	}
-	
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
-}
-
-// Ready retorna el estado de preparación del servicio
-func (h *HealthHandler) Ready(w http.ResponseWriter, r *http.Request) {
-	// Aquí puedes agregar verificaciones adicionales como:
-	// - Conectividad a la base de datos
-	// - Servicios externos
-	// - Dependencias críticas
-	
-	response := map[string]interface{}{
+// Ready checks if the service is ready to accept traffic
+func (h *HealthHandler) Ready(c *gin.Context) {
+	// Here you can add checks for database, cache, external services, etc.
+	// For now, we'll just return OK
+	c.JSON(http.StatusOK, gin.H{
 		"status": "ready",
-		"timestamp": time.Now(),
-		"checks": map[string]string{
-			"service": "ok",
-			// "database": "ok", // Cuando se implemente
-			// "cache": "ok",    // Cuando se implemente
+		"checks": gin.H{
+			"database": "ok",
+			"cache":    "ok",
 		},
-	}
-	
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	})
 }

@@ -63,6 +63,16 @@ func getTemplates() map[string]string {
 		"user_dto.go.tmpl":        "templates/dtos/user_dto.go.tmpl",
 		"cors_middleware.go.tmpl": "templates/middleware/cors_middleware.go.tmpl",
 		"api_docs.tmpl":           "templates/docs/api_docs.tmpl",
+
+		// ======================================
+		// Database Templates (GORM)
+		// ======================================
+		"database/database.go.tmpl":        "templates/database/database.go.tmpl",
+		"database/models_all.go.tmpl":      "templates/database/models_all.go.tmpl",
+		"database/seeders_all.go.tmpl":     "templates/database/seeders_all.go.tmpl",
+		"database/database_seeder.go.tmpl": "templates/database/database_seeder.go.tmpl",
+		"database/user_seeder.go.tmpl":     "templates/database/user_seeder.go.tmpl",
+		"console/main.go.tmpl":             "templates/console/main.go.tmpl",
 	}
 
 	// Load each template
@@ -78,4 +88,14 @@ func getTemplates() map[string]string {
 	}
 
 	return templates
+}
+
+// GetTemplateContent returns the content of a template by name
+func GetTemplateContent(templateName string) (string, error) {
+	templates := getTemplates()
+	content, exists := templates[templateName]
+	if !exists {
+		return "", fmt.Errorf("template %s not found", templateName)
+	}
+	return content, nil
 }

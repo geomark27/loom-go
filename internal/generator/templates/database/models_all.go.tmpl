@@ -1,0 +1,14 @@
+package database
+
+import (
+	"{{.ModuleName}}/{{.ModelsPath}}"
+)
+
+// AllModels contains all models for dynamic migration
+// Add your models here to include them in auto-migration
+var AllModels = []interface{}{
+	&models.User{},
+	// Add your models here, e.g.:
+	// &models.Product{},
+	// &models.Order{},
+}

@@ -3,44 +3,45 @@ package server
 import (
 	"net/http"
 	"{{.ModuleName}}/internal/app/handlers"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
-// registerRoutes registra todas las rutas de la aplicación
+// registerRoutes registers all application routes
 func registerRoutes(
-	router *mux.Router,
+	router *gin.Engine,
 	healthHandler *handlers.HealthHandler,
 	userHandler *handlers.UserHandler,
 ) {
-	// API v1
-	api := router.PathPrefix("/api/v1").Subrouter()
-	
-	// Rutas de salud
-	api.HandleFunc("/health", healthHandler.Health).Methods("GET")
-	api.HandleFunc("/health/ready", healthHandler.Ready).Methods("GET")
-	
-	// Rutas de usuarios
-	users := api.PathPrefix("/users").Subrouter()
-	users.HandleFunc("", userHandler.GetUsers).Methods("GET")
-	users.HandleFunc("", userHandler.CreateUser).Methods("POST")
-	users.HandleFunc("/{id}", userHandler.GetUser).Methods("GET")
-	users.HandleFunc("/{id}", userHandler.UpdateUser).Methods("PUT")
-	users.HandleFunc("/{id}", userHandler.DeleteUser).Methods("DELETE")
-	
-	// Ruta raíz
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{
-			"message": "¡Bienvenido a {{.Name}}!",
-			"status": "success",
-			"version": "v1.0.0",
+	// Root route
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Welcome to {{.Name}}!",
+			"status":  "success",
+			"version": "v1.1.0",
 			"generated_with": "Loom",
-			"endpoints": {
+			"endpoints": gin.H{
 				"health": "/api/v1/health",
-				"users": "/api/v1/users",
-				"docs": "/docs/API.md"
-			}
-		}`))
-	}).Methods("GET")
+				"users":  "/api/v1/users",
+				"docs":   "/docs/API.md",
+			},
+		})
+	})
+
+	// API v1 group
+	api := router.Group("/api/v1")
+	{
+		// Health routes
+		api.GET("/health", healthHandler.Health)
+		api.GET("/health/ready", healthHandler.Ready)
+
+		// User routes
+		users := api.Group("/users")
+		{
+			users.GET("", userHandler.GetUsers)
+			users.POST("", userHandler.CreateUser)
+			users.GET("/:id", userHandler.GetUser)
+			users.PUT("/:id", userHandler.UpdateUser)
+			users.DELETE("/:id", userHandler.DeleteUser)
+		}
+	}
 }

@@ -78,16 +78,16 @@ created_with=loom-cli
 
 // GetChangelogBetween returns the changelog between two versions
 func GetChangelogBetween(from, to Version) string {
-	// If both versions are 1.0.0 or higher, there are no internal changes
+	// If both versions are 1.1.0 or higher, there are no internal changes
 	if from.Major >= 1 && to.Major >= 1 {
 		return "✅ Project updated. See CHANGELOG.md for complete details."
 	}
 
-	// For legacy projects (v0.x.x), suggest upgrade to v1.0.0
+	// For legacy projects (v0.x.x), suggest upgrade to v1.1.0
 	if from.Major == 0 {
 		return `🎉 Important update available!
 
-📌 Version 1.0.0 - Stable Release:
+📌 Version 1.1.0 - Stable Release:
   ✨ 'loom generate' command to create individual components
   🎨 'loom add' command to add technologies (routers, ORMs, databases)
   ⬆️ 'loom upgrade' command with versioning system

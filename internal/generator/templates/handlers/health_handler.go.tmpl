@@ -33,7 +33,7 @@ func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
 		Status:    "healthy",
 		Timestamp: time.Now(),
 		Service:   "{{.Name}}",
-		Version:   "v1.0.0",
+		Version:   "v1.1.0",
 		Uptime:    time.Since(h.startTime).String(),
 	}
 	

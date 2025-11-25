@@ -1,75 +1,62 @@
 package server
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
 var startTime = time.Now()
 
 // registerHealthRoutes registra las rutas de health check
-func registerHealthRoutes(router *mux.Router) {
-	api := router.PathPrefix("/api/v1").Subrouter()
+func registerHealthRoutes(router *gin.Engine) {
+	api := router.Group("/api/v1")
 
 	// Health endpoints
-	api.HandleFunc("/health", healthHandler).Methods("GET")
-	api.HandleFunc("/health/ready", readyHandler).Methods("GET")
+	api.GET("/health", healthHandler)
+	api.GET("/health/ready", readyHandler)
 
 	// Ruta raíz
-	router.HandleFunc("/", rootHandler).Methods("GET")
+	router.GET("/", rootHandler)
 }
 
 // healthHandler retorna el estado de salud del servicio
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	response := map[string]interface{}{
+func healthHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
 		"status":    "healthy",
 		"timestamp": time.Now(),
 		"service":   "{{.Name}}",
-		"version":   "v1.0.0",
+		"version":   "v1.1.0",
 		"uptime":    time.Since(startTime).String(),
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	})
 }
 
 // readyHandler retorna el estado de preparación del servicio
-func readyHandler(w http.ResponseWriter, r *http.Request) {
-	response := map[string]interface{}{
+func readyHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
 		"status":    "ready",
 		"timestamp": time.Now(),
-		"checks": map[string]string{
+		"checks": gin.H{
 			"service": "ok",
 			// "database": "ok", // Cuando se implemente
 			// "cache":    "ok", // Cuando se implemente
 		},
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	})
 }
 
 // rootHandler es el handler de la ruta raíz
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	response := map[string]interface{}{
+func rootHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
 		"message":        "¡Bienvenido a {{.Name}}!",
 		"status":         "success",
-		"version":        "v1.0.0",
+		"version":        "v1.1.0",
 		"architecture":   "modular",
 		"generated_with": "Loom",
-		"endpoints": map[string]string{
+		"endpoints": gin.H{
 			"health": "/api/v1/health",
 			"users":  "/api/v1/users",
 			"docs":   "/docs/API.md",
 		},
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	})
 }

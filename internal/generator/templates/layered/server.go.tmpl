@@ -9,41 +9,44 @@ import (
 	"{{.ModuleName}}/internal/app/repositories"
 	"{{.ModuleName}}/internal/app/services"
 	"{{.ModuleName}}/internal/platform/config"
-	"{{.ModuleName}}/internal/shared/middleware"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
-// Server representa el servidor HTTP
+// Server represents the HTTP server
 type Server struct {
 	config     *config.Config
-	router     *mux.Router
+	router     *gin.Engine
 	httpServer *http.Server
 }
 
-// New crea una nueva instancia del servidor con todas las dependencias inyectadas
+// New creates a new server instance with all dependencies injected
 func New(cfg *config.Config) *Server {
-	// Crear repositorios
+	// Set Gin mode based on environment
+	if cfg.Environment == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	// Create repositories
 	userRepo := repositories.NewUserRepository()
 
-	// Crear servicios (inyectando repositorios)
+	// Create services (injecting repositories)
 	userService := services.NewUserService(userRepo)
 
-	// Crear handlers (inyectando servicios)
+	// Create handlers (injecting services)
 	healthHandler := handlers.NewHealthHandler()
 	userHandler := handlers.NewUserHandler(userService)
 
-	// Crear router
-	router := mux.NewRouter()
+	// Create Gin router
+	router := gin.Default()
 
-	// Configurar middleware global
-	corsMiddleware := middleware.NewCORSMiddleware(cfg.CorsAllowedOrigins)
-	router.Use(corsMiddleware)
+	// Configure CORS middleware
+	router.Use(corsMiddleware(cfg.CorsAllowedOrigins))
 
-	// Registrar rutas
+	// Register routes
 	registerRoutes(router, healthHandler, userHandler)
 
-	// Configurar servidor HTTP
+	// Configure HTTP server
 	httpServer := &http.Server{
 		Addr:         ":" + cfg.Port,
 		Handler:      router,
@@ -59,12 +62,42 @@ func New(cfg *config.Config) *Server {
 	}
 }
 
-// Start inicia el servidor HTTP
+// Start starts the HTTP server
 func (s *Server) Start() error {
 	return s.httpServer.ListenAndServe()
 }
 
-// Shutdown apaga el servidor de forma elegante
+// Shutdown gracefully shuts down the server
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
+}
+
+// corsMiddleware returns a Gin middleware for CORS
+func corsMiddleware(allowedOrigins []string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		origin := c.Request.Header.Get("Origin")
+		
+		// Check if origin is allowed
+		allowed := false
+		for _, allowedOrigin := range allowedOrigins {
+			if allowedOrigin == "*" || allowedOrigin == origin {
+				allowed = true
+				break
+			}
+		}
+
+		if allowed {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+			c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+			c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
+		}
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
 }
