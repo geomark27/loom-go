@@ -55,13 +55,14 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 
 // GetUser retrieves a user by ID
 func (h *UserHandler) GetUser(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid user ID",
 		})
 		return
 	}
+	id := uint(idParam)
 
 	user, err := h.userService.GetUserByID(id)
 	if err != nil {
@@ -110,7 +111,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	}
 {{- end}}
 
-	user, err := h.userService.CreateUser(&dto)
+	user, err := h.userService.CreateUser(dto)
 	if err != nil {
 {{- if .UseHelpers}}
 		h.logger.Error("Failed to create user", "error", err)
@@ -134,13 +135,14 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 
 // UpdateUser updates an existing user
 func (h *UserHandler) UpdateUser(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid user ID",
 		})
 		return
 	}
+	id := uint(idParam)
 
 	var dto dtos.UpdateUserDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -162,7 +164,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 	}
 {{- end}}
 
-	user, err := h.userService.UpdateUser(id, &dto)
+	user, err := h.userService.UpdateUser(id, dto)
 	if err != nil {
 		if err.Error() == "user not found" {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -192,13 +194,14 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 
 // DeleteUser deletes a user
 func (h *UserHandler) DeleteUser(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid user ID",
 		})
 		return
 	}
+	id := uint(idParam)
 
 	if err := h.userService.DeleteUser(id); err != nil {
 		if err.Error() == "user not found" {

@@ -1,13 +1,17 @@
 package users
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 // User representa un usuario en el sistema
 type User struct {
-	ID        int       `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Age       int       `json:"age"`
+	gorm.Model
+	Name      string    `gorm:"size:100;not null" json:"name"`
+	Email     string    `gorm:"size:100;not null;uniqueIndex" json:"email"`
+	Age       int       `gorm:"default:0" json:"age"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

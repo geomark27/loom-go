@@ -11,10 +11,10 @@ import (
 // UserService define el contrato del servicio de usuarios
 type UserService interface {
 	GetAllUsers() ([]models.User, error)
-	GetUserByID(id int) (*models.User, error)
+	GetUserByID(id uint) (*models.User, error)
 	CreateUser(dto dtos.CreateUserDTO) (*models.User, error)
-	UpdateUser(id int, dto dtos.UpdateUserDTO) (*models.User, error)
-	DeleteUser(id int) error
+	UpdateUser(id uint, dto dtos.UpdateUserDTO) (*models.User, error)
+	DeleteUser(id uint) error
 }
 
 // userService es la implementación privada del servicio
@@ -35,7 +35,7 @@ func (s *userService) GetAllUsers() ([]models.User, error) {
 }
 
 // GetUserByID obtiene un usuario por su ID
-func (s *userService) GetUserByID(id int) (*models.User, error) {
+func (s *userService) GetUserByID(id uint) (*models.User, error) {
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (s *userService) CreateUser(dto dtos.CreateUserDTO) (*models.User, error) {
 }
 
 // UpdateUser actualiza un usuario existente
-func (s *userService) UpdateUser(id int, dto dtos.UpdateUserDTO) (*models.User, error) {
+func (s *userService) UpdateUser(id uint, dto dtos.UpdateUserDTO) (*models.User, error) {
 	existingUser, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (s *userService) UpdateUser(id int, dto dtos.UpdateUserDTO) (*models.User, 
 }
 
 // DeleteUser elimina un usuario
-func (s *userService) DeleteUser(id int) error {
+func (s *userService) DeleteUser(id uint) error {
 	existingUser, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return err

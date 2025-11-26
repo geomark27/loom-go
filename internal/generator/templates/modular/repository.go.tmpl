@@ -9,15 +9,15 @@ import (
 // En este ejemplo usamos una implementación en memoria
 // En producción, esto sería reemplazado por una base de datos real
 type repository struct {
-	users  map[int]*User
-	nextID int
+	users  map[uint]*User
+	nextID uint
 	mutex  sync.RWMutex
 }
 
 // NewRepository crea una nueva instancia de Repository
 func NewRepository() Repository {
 	repo := &repository{
-		users:  make(map[int]*User),
+		users:  make(map[uint]*User),
 		nextID: 1,
 	}
 
@@ -29,38 +29,27 @@ func NewRepository() Repository {
 
 // seedData crea algunos usuarios de ejemplo
 func (r *repository) seedData() {
-	users := []*User{
-		{
-			ID:        1,
-			Name:      "Juan Pérez",
-			Email:     "juan@example.com",
-			Age:       25,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
-		{
-			ID:        2,
-			Name:      "María García",
-			Email:     "maria@example.com",
-			Age:       30,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
-		{
-			ID:        3,
-			Name:      "Carlos López",
-			Email:     "carlos@example.com",
-			Age:       28,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
+	seedUsers := []struct {
+		Name  string
+		Email string
+		Age   int
+	}{
+		{Name: "Juan Pérez", Email: "juan@example.com", Age: 25},
+		{Name: "María García", Email: "maria@example.com", Age: 30},
+		{Name: "Carlos López", Email: "carlos@example.com", Age: 28},
 	}
 
-	for _, user := range users {
-		r.users[user.ID] = user
-		if user.ID >= r.nextID {
-			r.nextID = user.ID + 1
+	for _, u := range seedUsers {
+		user := &User{
+			Name:      u.Name,
+			Email:     u.Email,
+			Age:       u.Age,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		}
+		user.ID = r.nextID
+		r.users[user.ID] = user
+		r.nextID++
 	}
 }
 
@@ -78,7 +67,7 @@ func (r *repository) GetAll() ([]User, error) {
 }
 
 // GetByID obtiene un usuario por su ID
-func (r *repository) GetByID(id int) (*User, error) {
+func (r *repository) GetByID(id uint) (*User, error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 
@@ -144,7 +133,7 @@ func (r *repository) Update(user *User) (*User, error) {
 }
 
 // Delete elimina un usuario por su ID
-func (r *repository) Delete(id int) error {
+func (r *repository) Delete(id uint) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 

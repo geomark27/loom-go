@@ -10,10 +10,10 @@ import (
 // UserRepository define el contrato del repositorio de usuarios
 type UserRepository interface {
 	GetAll() ([]models.User, error)
-	GetByID(id int) (*models.User, error)
+	GetByID(id uint) (*models.User, error)
 	Create(user *models.User) (*models.User, error)
 	Update(user *models.User) (*models.User, error)
-	Delete(id int) error
+	Delete(id uint) error
 	GetByEmail(email string) (*models.User, error)
 }
 
@@ -21,15 +21,15 @@ type UserRepository interface {
 // En este ejemplo usamos una implementación en memoria
 // En producción, esto sería reemplazado por una base de datos real
 type userRepository struct {
-	users  map[int]*models.User
-	nextID int
+	users  map[uint]*models.User
+	nextID uint
 	mutex  sync.RWMutex
 }
 
 // NewUserRepository crea una nueva instancia de UserRepository
 func NewUserRepository() UserRepository {
 	repo := &userRepository{
-		users:  make(map[int]*models.User),
+		users:  make(map[uint]*models.User),
 		nextID: 1,
 	}
 
@@ -41,38 +41,27 @@ func NewUserRepository() UserRepository {
 
 // seedData crea algunos usuarios de ejemplo
 func (r *userRepository) seedData() {
-	users := []*models.User{
-		{
-			ID:        1,
-			Name:      "Juan Pérez",
-			Email:     "juan@example.com",
-			Age:       25,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
-		{
-			ID:        2,
-			Name:      "María García",
-			Email:     "maria@example.com",
-			Age:       30,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
-		{
-			ID:        3,
-			Name:      "Carlos López",
-			Email:     "carlos@example.com",
-			Age:       28,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
+	seedUsers := []struct {
+		Name  string
+		Email string
+		Age   int
+	}{
+		{Name: "Juan Pérez", Email: "juan@example.com", Age: 25},
+		{Name: "María García", Email: "maria@example.com", Age: 30},
+		{Name: "Carlos López", Email: "carlos@example.com", Age: 28},
 	}
 
-	for _, user := range users {
-		r.users[user.ID] = user
-		if user.ID >= r.nextID {
-			r.nextID = user.ID + 1
+	for _, u := range seedUsers {
+		user := &models.User{
+			Name:      u.Name,
+			Email:     u.Email,
+			Age:       u.Age,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		}
+		user.ID = r.nextID
+		r.users[user.ID] = user
+		r.nextID++
 	}
 }
 
@@ -90,7 +79,7 @@ func (r *userRepository) GetAll() ([]models.User, error) {
 }
 
 // GetByID obtiene un usuario por su ID
-func (r *userRepository) GetByID(id int) (*models.User, error) {
+func (r *userRepository) GetByID(id uint) (*models.User, error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 
@@ -140,7 +129,7 @@ func (r *userRepository) Update(user *models.User) (*models.User, error) {
 }
 
 // Delete elimina un usuario por su ID
-func (r *userRepository) Delete(id int) error {
+func (r *userRepository) Delete(id uint) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 

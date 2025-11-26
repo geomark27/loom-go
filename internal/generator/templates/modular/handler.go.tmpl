@@ -64,7 +64,7 @@ func (h *handler) getAll(c *gin.Context) {
 
 // getByID obtiene un usuario por ID
 func (h *handler) getByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
@@ -72,6 +72,7 @@ func (h *handler) getByID(c *gin.Context) {
 		})
 		return
 	}
+	id := uint(idParam)
 
 	user, err := h.service.GetUserByID(id)
 	if err != nil {
@@ -156,7 +157,7 @@ func (h *handler) create(c *gin.Context) {
 
 // update actualiza un usuario existente
 func (h *handler) update(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
@@ -164,6 +165,7 @@ func (h *handler) update(c *gin.Context) {
 		})
 		return
 	}
+	id := uint(idParam)
 
 	var dto UpdateUserDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -200,7 +202,7 @@ func (h *handler) update(c *gin.Context) {
 
 // delete elimina un usuario
 func (h *handler) delete(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
@@ -208,6 +210,7 @@ func (h *handler) delete(c *gin.Context) {
 		})
 		return
 	}
+	id := uint(idParam)
 
 	if err := h.service.DeleteUser(id); err != nil {
 		if err == ErrUserNotFound {

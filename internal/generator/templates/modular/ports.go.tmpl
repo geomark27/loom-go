@@ -9,11 +9,11 @@ import "{{.ModuleName}}/internal/platform/events"
 // Repository define el contrato de persistencia para usuarios
 type Repository interface {
 	GetAll() ([]User, error)
-	GetByID(id int) (*User, error)
+	GetByID(id uint) (*User, error)
 	GetByEmail(email string) (*User, error)
 	Create(user *User) (*User, error)
 	Update(user *User) (*User, error)
-	Delete(id int) error
+	Delete(id uint) error
 }
 
 // EventPublisher permite al módulo publicar eventos de dominio
@@ -28,8 +28,8 @@ type EventPublisher interface {
 // Service define el contrato del servicio de usuarios
 type Service interface {
 	GetAllUsers() ([]User, error)
-	GetUserByID(id int) (*User, error)
+	GetUserByID(id uint) (*User, error)
 	CreateUser(dto CreateUserDTO) (*User, error)
-	UpdateUser(id int, dto UpdateUserDTO) (*User, error)
-	DeleteUser(id int) error
+	UpdateUser(id uint, dto UpdateUserDTO) (*User, error)
+	DeleteUser(id uint) error
 }
