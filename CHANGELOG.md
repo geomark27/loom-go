@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.1.1] - 2025-11-25 🔧
+
+### 🐛 Fixed
+- **Type mismatch fix**: All layers now use `uint` for ID to match `gorm.Model`
+  - Repository: `map[uint]`, `GetByID(uint)`, `Delete(uint)`
+  - Service: `GetUserByID(uint)`, `UpdateUser(uint)`, `DeleteUser(uint)`
+  - Handler: Uses `strconv.ParseUint()` instead of `strconv.Atoi()`
+  - Handler: DTOs passed by value instead of pointer where appropriate
+- **Modular architecture model**: Now uses `gorm.Model` with proper GORM tags
+- **seedData logic**: Fixed user seeding to properly assign IDs before storing
+
+### 📝 Affected Templates
+- `layered/user_repository.go.tmpl`
+- `layered/user_service.go.tmpl`  
+- `layered/user_handler.go.tmpl`
+- `modular/repository.go.tmpl`
+- `modular/service.go.tmpl`
+- `modular/handler.go.tmpl`
+- `modular/ports.go.tmpl`
+- `modular/model.go.tmpl`
+
+---
+
 ## [1.1.0] - 2025-11-24 🚀
 
 ### ⚠️ BREAKING CHANGES
@@ -424,6 +447,8 @@ go install github.com/geomark27/loom-go/cmd/loom@latest
 
 ## Version Links
 
+- [1.1.1]: https://github.com/geomark27/loom-go/releases/tag/v1.1.1
+- [1.1.0]: https://github.com/geomark27/loom-go/releases/tag/v1.1.0
 - [1.0.6]: https://github.com/geomark27/loom-go/releases/tag/v1.0.6
 - [1.0.5]: https://github.com/geomark27/loom-go/releases/tag/v1.0.5
 - [1.0.4]: https://github.com/geomark27/loom-go/releases/tag/v1.0.4
