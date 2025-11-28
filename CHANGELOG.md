@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.1.3] - 2025-11-28 🚀
+
+### ✨ Added
+- **`loom self-update` command** - Update Loom CLI automatically:
+  - `loom self-update` - Update to latest version
+  - `loom self-update v1.1.2` - Update to specific version
+  - `loom self-update --check` - Check for updates without installing
+- Fetches latest version from GitHub (releases or tags)
+- Bypasses Go proxy for faster updates
+- Shows current vs target version comparison
+
+---
+
 ## [1.1.2] - 2025-11-28 ✨
 
 ### ✨ Added
@@ -465,6 +478,7 @@ go install github.com/geomark27/loom-go/cmd/loom@latest
 
 ## Version Links
 
+- [1.1.3]: https://github.com/geomark27/loom-go/releases/tag/v1.1.3
 - [1.1.2]: https://github.com/geomark27/loom-go/releases/tag/v1.1.2
 - [1.1.1]: https://github.com/geomark27/loom-go/releases/tag/v1.1.1
 - [1.1.0]: https://github.com/geomark27/loom-go/releases/tag/v1.1.0

@@ -601,6 +601,32 @@ loom add list
 
 ---
 
+### `loom self-update` - Update Loom CLI (v1.1.3+)
+
+```bash
+loom self-update [version] [flags]
+```
+
+Update the Loom CLI itself to the latest or a specific version.
+
+**Examples:**
+```bash
+loom self-update           # Update to latest version
+loom self-update v1.1.3    # Update to specific version
+loom self-update --check   # Check for updates without installing
+```
+
+**Flags:**
+- `--check` - Check for updates without installing
+
+**How it works:**
+1. Fetches latest version from GitHub (releases or tags)
+2. Compares with current version
+3. Runs `go install` with direct proxy to bypass cache
+4. Confirms successful update
+
+---
+
 ### `loom upgrade` - Upgrade Projects
 
 ```bash
