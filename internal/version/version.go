@@ -14,7 +14,7 @@ type Version struct {
 }
 
 // Current is the current version of Loom
-var Current = Version{Major: 1, Minor: 1, Patch: 1}
+var Current = Version{Major: 1, Minor: 1, Patch: 2}
 
 // String returns the version in string format
 func (v Version) String() string {

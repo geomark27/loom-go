@@ -370,6 +370,56 @@ var AllSeeders = []Seeder{
 
 ---
 
+### `loom db:*` - Database Commands (v1.1.2+)
+
+Laravel Artisan-style commands for database management. **Requires** `loom add orm gorm` first.
+
+```bash
+loom db:migrate              # Run database migrations
+loom db:migrate --seed       # Run migrations + seeders
+loom db:fresh                # Drop all tables and re-run migrations
+loom db:fresh --seed         # Fresh migration + seeders  
+loom db:seed                 # Run seeders only
+```
+
+#### `loom db:migrate`
+
+Run all pending database migrations using GORM AutoMigrate.
+
+```bash
+loom db:migrate
+loom db:migrate --seed    # Also run seeders after migration
+```
+
+#### `loom db:fresh`
+
+⚠️ **WARNING**: This is destructive! Drops ALL tables and re-creates them.
+
+```bash
+loom db:fresh             # Drop + migrate
+loom db:fresh --seed      # Drop + migrate + seed
+```
+
+#### `loom db:seed`
+
+Execute all seeders registered in `seeders_all.go`.
+
+```bash
+loom db:seed
+```
+
+#### Equivalencias Laravel → Loom
+
+| Laravel Artisan | Loom CLI |
+|-----------------|----------|
+| `php artisan migrate` | `loom db:migrate` |
+| `php artisan migrate:fresh` | `loom db:fresh` |
+| `php artisan migrate --seed` | `loom db:migrate --seed` |
+| `php artisan migrate:fresh --seed` | `loom db:fresh --seed` |
+| `php artisan db:seed` | `loom db:seed` |
+
+---
+
 ### `loom add` - Addon System
 
 ```bash

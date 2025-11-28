@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.1.2] - 2025-11-28 ✨
+
+### ✨ Added
+- **New `loom db:*` commands** - Laravel Artisan-style database commands:
+  - `loom db:migrate` - Run database migrations
+  - `loom db:migrate --seed` - Run migrations and seeders
+  - `loom db:fresh` - Drop all tables and re-run migrations
+  - `loom db:fresh --seed` - Fresh migration with seeders
+  - `loom db:seed` - Run database seeders only
+- Commands automatically detect project and execute console CLI
+- Clear error messages when GORM is not installed
+
+### 📝 Note
+These commands require `loom add orm gorm` to be run first.
+They provide a more intuitive interface compared to running `go run cmd/console/main.go` manually.
+
+---
+
 ## [1.1.1] - 2025-11-25 🔧
 
 ### 🐛 Fixed
@@ -447,6 +465,7 @@ go install github.com/geomark27/loom-go/cmd/loom@latest
 
 ## Version Links
 
+- [1.1.2]: https://github.com/geomark27/loom-go/releases/tag/v1.1.2
 - [1.1.1]: https://github.com/geomark27/loom-go/releases/tag/v1.1.1
 - [1.1.0]: https://github.com/geomark27/loom-go/releases/tag/v1.1.0
 - [1.0.6]: https://github.com/geomark27/loom-go/releases/tag/v1.0.6
